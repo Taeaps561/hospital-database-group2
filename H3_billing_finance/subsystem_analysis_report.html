@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>SUBSYSTEM_ANALYSIS_u68001</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: counter(page);
+            }
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+            font-size: 14.5px;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* Page Layout & Breaks */
+        .page {
+            page-break-after: always;
+            position: relative;
+        }
+        .page:last-child {
+            page-break-after: avoid;
+        }
+
+        /* Cover Page */
+        .cover-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 240mm;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            margin-top: 10mm;
+        }
+        .cover-tag {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2563eb;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            background-color: #eff6ff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid #bfdbfe;
+        }
+        .cover-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin: 10px 0 20px 0;
+            line-height: 1.3;
+        }
+        .cover-subtitle {
+            font-size: 18px;
+            color: #475569;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+        .cover-divider {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            margin-bottom: 60px;
+            border-radius: 2px;
+        }
+        .cover-meta {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #334155;
+        }
+        .cover-meta strong {
+            color: #0f172a;
+        }
+        .cover-footer {
+            margin-top: auto;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 0;
+        }
+        h2 {
+            font-size: 20px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+        }
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 20px;
+            background-color: #3b82f6;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        h3 {
+            font-size: 16px;
+            color: #2563eb;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 0 0 12px 0;
+            text-align: justify;
+        }
+        ul, ol {
+            margin: 0 0 16px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* Tables styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+        th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            text-align: left;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-bottom: 2px solid #94a3b8;
+        }
+        td {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Badges */
+        .badge {
+            font-family: monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .badge-pk {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .badge-fk {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .badge-type {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-family: monospace;
+        }
+
+        /* Callouts / Alerts */
+        .callout {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+            font-size: 13.5px;
+        }
+        .callout-title {
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 6px;
+        }
+        .callout-warning {
+            background-color: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+        .callout-warning .callout-title {
+            color: #b45309;
+        }
+        .callout-danger {
+            background-color: #fef2f2;
+            border-left-color: #ef4444;
+        }
+        .callout-danger .callout-title {
+            color: #991b1b;
+        }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- PAGE 1: COVER PAGE -->
+    <div class="page" style="height: 270mm;">
+        <div class="cover-container">
+            <span class="cover-tag">รายงานวิเคราะห์ระบบย่อยก่อนรวม</span>
+            <h1 class="cover-title">โมดูล H3: ระบบการเงินโรงพยาบาล<br>(Hospital Billing & Payment System)</h1>
+            <p class="cover-subtitle">รายวิชา ระบบจัดการฐานข้อมูล (Database Management System)</p>
+            <div class="cover-divider"></div>
+            
+            <div style="margin-top: 40px; margin-bottom: 60px;">
+                <div class="cover-meta">ผู้จัดทำ: <strong>นายนธิศ เลิศรัชต์</strong></div>
+                <div class="cover-meta">รหัสนักศึกษา: <strong>u68001</strong></div>
+                <div class="cover-meta">กลุ่ม: <strong>กลุ่ม 2 โรงพยาบาลปีศาจ</strong></div>
+                <div class="cover-meta">ระดับชั้น: <strong>วิทยาศาสตรบัณฑิต (วิทยาการคอมพิวเตอร์)</strong></div>
+            </div>
+            
+            <div class="cover-footer">
+                คณะวิทยาศาสตร์ มหาวิทยาลัยเทคโนโลยี<br>
+                รายงานผลการวิเคราะห์โครงสร้างฐานข้อมูลก่อนกระบวนการบูรณาการระบบ (Database Integration)
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: SCOPE & FUNCTIONS -->
+    <div class="page" style="height: 270mm;">
+        <h2>1. ขอบเขตและหน้าที่ของระบบ (Scope & Functions)</h2>
+        <p>ระบบย่อยการเงินโรงพยาบาล (โมดูล H3) มีบทบาทสำคัญในการควบคุม จัดการ และตรวจสอบกระแสธุรกรรมทางการเงินทั้งหมดที่เกิดขึ้นภายในสถานพยาบาล ตั้งแต่จุดเริ่มต้นการเข้ารับบริการไปจนกระทั่งกระบวนการชำระเงินและปิดบัญชี โดยครอบคลุมขอบเขตภาระหน้าที่หลัก 8 ประการ ดังนี้:</p>
+        
+        <div class="callout">
+            <div class="callout-title">หน้าที่และขอบเขตการทำงานหลักของระบบการเงิน (H3)</div>
+            <ol>
+                <li><strong>การรวบรวมค่าใช้จ่ายและออกใบแจ้งหนี้ (Invoicing)</strong>: ดึงรายการค่าบริการตรวจรักษา ค่ายา และค่าห้อง จากระบบแพทย์และพยาบาล (โมดูล H2/H6) มาสร้างเป็นใบแจ้งหนี้หลัก (`invoices`) และรายการย่อย (`invoice_items`)</li>
+                <li><strong>การชำระเงินหลายช่องทาง (Payments)</strong>: รองรับและบันทึกข้อมูลการรับเงินผ่าน เงินสด, บัตรเครดิต, พร้อมเพย์, การโอนเงินผ่านระบบธนาคาร และการเคลมประกันสุขภาพ</li>
+                <li><strong>การเคลมประกันสุขภาพ (Insurance Claims)</strong>: บริหารจัดการการยื่นเคลมยอดค่ารักษาพยาบาลกับบริษัทประกันคู่สัญญา และบันทึกยอดอนุมัติการจ่ายเงินจริง</li>
+                <li><strong>การออกเอกสารหลักฐาน (Receipts)</strong>: ดำเนินการออกใบเสร็จรับเงินอย่างเป็นทางการ (`receipts`) และรายการย่อยในใบเสร็จ (`receipt_items`) เมื่อได้รับเงินครบตามเงื่อนไข</li>
+                <li><strong>การจัดการวงเงินมัดจำล่วงหน้า (Deposits)</strong>: บันทึกเงินมัดจำล่วงหน้าของผู้ป่วยนอนโรงพยาบาล (IPD) เพื่อสำรองวงเงินห้องพัก และทำหน้าที่ตัดยอดค่าใช้จ่ายตอนจำหน่ายผู้ป่วย (Discharge)</li>
+                <li><strong>การคืนเงินธุรกรรม (Refunds)</strong>: ดำเนินงานคืนเงินให้ผู้ป่วยกรณีบริการขัดข้องหรือเกิดข้อผิดพลาดในการคำนวณบิล โดยควบคุมสิทธิ์ผ่านระดับผู้จัดการพนักงานการเงิน</li>
+                <li><strong>การวิเคราะห์และกระทบยอดเงินโอน (Bank Reconciliation)</strong>: ตรวจสอบและเปรียบเทียบข้อมูลยอดเงินโอนและหมายเลขอ้างอิงระหว่างระบบโรงพยาบาลกับ Statement ธนาคารจริง ป้องกันปัญหายอดเงินโอนสูญหายหรือทุจริต</li>
+                <li><strong>ระบบความปลอดภัยการเงินและการตรวจสอบย้อนหลัง (Audit & Security)</strong>: บันทึกล็อกการทำ DML (INSERT, UPDATE, DELETE) ย้อนหลังในตารางหลัก (`audit_log`), จำกัดสิทธิ์การมองเห็นข้อมูลข้ามผู้ป่วยผ่าน Row-Level Security (RLS) และบันทึกประวัติล็อกการปรับเปลี่ยนราคาบริการ (`price_history`)</li>
+            </ol>
+        </div>
+        
+        <p>ความสามารถด้านความมั่นคงปลอดภัย (Security Controls) ที่มีผลบังคับใช้ในระดับฐานข้อมูล ได้แก่ การเปิดใช้งาน Row-Level Security (RLS) บนตารางธุรกรรมการเงินหลัก เพื่อให้ผู้ป่วยทั่วไปมองเห็นเฉพาะข้อมูลบิลของตนเอง รวมถึงการติดตั้ง Database Triggers เพื่อป้องกันพนักงานการเงินแก้ไขยอดชำระเงินหรือลบประวัติธุรกรรมเพื่อป้องกันการทุจริตทางการเงิน (Anti-Fraud Enforcement)</p>
+        
+        <div class="footer">
+            <span>รายงานวิเคราะห์ระบบย่อยก่อนรวม - H3 การเงิน</span>
+            <span>หน้า 2</span>
+        </div>
+    </div>
+
+    <!-- PAGE 3: ENTITIES & ATTRIBUTES (1-6) -->
+    <div class="page" style="height: 270mm;">
+        <h2>2. รายละเอียดตารางและแอตทริบิวต์ (Entities & Attributes) - ส่วนที่ 1</h2>
+        <p>รายละเอียดโครงสร้าง แอตทริบิวต์ และประเภทข้อมูลของตารางหลักที่ 1 ถึง 6 ในระบบการเงิน:</p>
+        
+        <h3>1. ตาราง billing_services (แคตตาล็อกค่าบริการมาตรฐาน)</h3>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 25%;">ประเภทข้อมูล (Data Type)</th><th style="width: 15%;">คีย์ (Key)</th><th style="width: 35%;">คำอธิบายความหมาย</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>service_id</td><td><span class="badge badge-type">SERIAL</span></td><td><span class="badge badge-pk">PK</span></td><td>รหัสบริการภายในของโรงพยาบาล (รันอัตโนมัติ)</td></tr>
+                <tr><td>service_code</td><td><span class="badge badge-type">VARCHAR(20)</span></td><td>UNIQUE</td><td>รหัสอ้างอิงบริการ (เช่น SVC-MED-01)</td></tr>
+                <tr><td>service_name</td><td><span class="badge badge-type">VARCHAR(150)</span></td><td>-</td><td>ชื่อภาษาไทยของรายการยา ค่าตรวจ หรือค่าห้อง</td></tr>
+                <tr><td>category</td><td><span class="badge badge-type">VARCHAR(50)</span></td><td>-</td><td>หมวดหมู่บริการ ('PHARMACY', 'LABORATORY', 'ROOM' ฯลฯ)</td></tr>
+                <tr><td>unit_price</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>ราคากลางมาตรฐาน ณ ปัจจุบัน (ห้ามติดลบ)</td></tr>
+                <tr><td>is_active</td><td><span class="badge badge-type">BOOLEAN</span></td><td>-</td><td>สถานะเปิดหรือปิดการเรียกเก็บเงินรายการนี้</td></tr>
+            </tbody>
+        </table>
+
+        <h3>2. ตาราง invoices (ใบแจ้งหนี้หลัก)</h3>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 25%;">ประเภทข้อมูล (Data Type)</th><th style="width: 15%;">คีย์ (Key)</th><th style="width: 35%;">คำอธิบายความหมาย</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>invoice_id</td><td><span class="badge badge-type">SERIAL</span></td><td><span class="badge badge-pk">PK</span></td><td>รหัสใบแจ้งหนี้ภายในระบบ</td></tr>
+                <tr><td>invoice_number</td><td><span class="badge badge-type">VARCHAR(30)</span></td><td>UNIQUE</td><td>เลขที่ใบแจ้งหนี้อย่างเป็นทางการ (เช่น INV-2026-0001)</td></tr>
+                <tr><td>patient_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสผู้ป่วยอ้างอิง (เชื่อมโยง H1)</td></tr>
+                <tr><td>visit_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสประวัติการเข้าตรวจรักษา (เชื่อมโยง H2/H6)</td></tr>
+                <tr><td>issue_date</td><td><span class="badge badge-type">TIMESTAMPTZ</span></td><td>-</td><td>วันเวลาที่เกิดเอกสารแจ้งเรียกเก็บเงิน</td></tr>
+                <tr><td>net_amount</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>ยอดเงินสุทธิสุดท้ายที่ต้องชำระจริง (หักส่วนลดรวมภาษี)</td></tr>
+                <tr><td>status</td><td><span class="badge badge-type">ENUM</span></td><td>-</td><td>สถานะบิล ('UNPAID', 'PARTIALLY_PAID', 'PAID', 'CANCELLED')</td></tr>
+            </tbody>
+        </table>
+
+        <h3>3. ตาราง invoice_items (รายการค่ารักษาพยาบาลย่อย)</h3>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 25%;">ประเภทข้อมูล (Data Type)</th><th style="width: 15%;">คีย์ (Key)</th><th style="width: 35%;">คำอธิบายความหมาย</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>item_id</td><td><span class="badge badge-type">SERIAL</span></td><td><span class="badge badge-pk">PK</span></td><td>รหัสรายการย่อยในบิล</td></tr>
+                <tr><td>invoice_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสใบแจ้งหนี้หลัก (เชื่อมโยง invoices)</td></tr>
+                <tr><td>service_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสบริการที่นำมาคิดเงิน (เชื่อมโยง billing_services)</td></tr>
+                <tr><td>item_name</td><td><span class="badge badge-type">VARCHAR(150)</span></td><td>-</td><td>ชื่อรายการชำระเงิน ณ วันที่บันทึกรายการ</td></tr>
+                <tr><td>unit_price</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>ราคาขายต่อหน่วยจริง ณ วันที่เรียกเก็บเงิน</td></tr>
+                <tr><td>quantity</td><td><span class="badge badge-type">INT</span></td><td>-</td><td>จำนวนชิ้นหรือครั้งการใช้บริการ (เช็คค่า > 0)</td></tr>
+                <tr><td>line_total</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>ยอดรวมของรายการย่อยนี้ (unit_price × quantity)</td></tr>
+            </tbody>
+        </table>
+        
+        <div class="footer">
+            <span>รายงานวิเคราะห์ระบบย่อยก่อนรวม - H3 การเงิน</span>
+            <span>หน้า 3</span>
+        </div>
+    </div>
+
+    <!-- PAGE 4: ENTITIES & ATTRIBUTES (4-9) -->
+    <div class="page" style="height: 270mm;">
+        <h2>2. รายละเอียดตารางและแอตทริบิวต์ (Entities & Attributes) - ส่วนที่ 2</h2>
+        <p>รายละเอียดโครงสร้าง แอตทริบิวต์ และประเภทข้อมูลของตารางธุรกรรมการรับเงินและเงินมัดจำ (ตารางที่ 4 ถึง 9):</p>
+
+        <h3>4. ตาราง payments (บันทึกธุรกรรมการชำระเงินจริง)</h3>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 25%;">ประเภทข้อมูล (Data Type)</th><th style="width: 15%;">คีย์ (Key)</th><th style="width: 35%;">คำอธิบายความหมาย</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>payment_id</td><td><span class="badge badge-type">SERIAL</span></td><td><span class="badge badge-pk">PK</span></td><td>รหัสการชำระเงินภายใน</td></tr>
+                <tr><td>payment_number</td><td><span class="badge badge-type">VARCHAR(30)</span></td><td>UNIQUE</td><td>เลขอ้างอิงใบนำชำระ (เช่น PAY-2026-0001)</td></tr>
+                <tr><td>invoice_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสใบแจ้งหนี้อ้างอิง (เชื่อม invoices)</td></tr>
+                <tr><td>payment_method</td><td><span class="badge badge-type">ENUM</span></td><td>-</td><td>ช่องทางจ่าย ('CASH', 'PROMPTPAY', 'CREDIT_CARD' ฯลฯ)</td></tr>
+                <tr><td>amount_paid</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>จำนวนยอดชำระเงินจริง (เช็คค่า > 0)</td></tr>
+                <tr><td>transaction_ref</td><td><span class="badge badge-type">VARCHAR(100)</span></td><td>-</td><td>เลขอ้างอิงธนาคาร/เลขสลิปโอนเงิน (สืบค้นคู่โอน)</td></tr>
+                <tr><td>cashier_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสพนักงานฝ่ายการเงินผู้บันทึกธุรกรรม (เชื่อม H7)</td></tr>
+                <tr><td>paid_at</td><td><span class="badge badge-type">TIMESTAMPTZ</span></td><td>-</td><td>วันเวลาชำระเงินสำเร็จจริง</td></tr>
+            </tbody>
+        </table>
+
+        <h3>5. ตาราง insurance_claims (การเคลมเงินประกันสุขภาพ)</h3>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 25%;">ประเภทข้อมูล (Data Type)</th><th style="width: 15%;">คีย์ (Key)</th><th style="width: 35%;">คำอธิบายความหมาย</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>claim_id</td><td><span class="badge badge-type">SERIAL</span></td><td><span class="badge badge-pk">PK</span></td><td>รหัสการยื่นเคลมประกัน</td></tr>
+                <tr><td>invoice_id</td><td><span class="badge badge-type">INT</span></td><td><span class="badge badge-fk">FK</span></td><td>รหัสใบแจ้งหนี้หลัก (เชื่อม invoices)</td></tr>
+                <tr><td>provider_name</td><td><span class="badge badge-type">VARCHAR(100)</span></td><td>-</td><td>ชื่อบริษัทประกันภัยคู่สัญญา หรือชื่อสิทธิ์การรักษา</td></tr>
+                <tr><td>policy_number</td><td><span class="badge badge-type">VARCHAR(50)</span></td><td>-</td><td>เลขที่กรมธรรม์หรือสิทธิ์การรักษาของผู้ป่วย</td></tr>
+                <tr><td>claimed_amount</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>จำนวนเงินที่ยื่นเรียกเก็บกับบริษัทประกัน</td></tr>
+                <tr><td>approved_amount</td><td><span class="badge badge-type">NUMERIC(12,2)</span></td><td>-</td><td>จำนวนเงินที่บริษัทประกันอนุมัติจ่ายจริง</td></tr>
+                <tr><td>claim_status</td><td><span class="badge badge-type">ENUM</span></td><td>-</td><td>สถานะการพิจารณา ('PENDING', 'APPROVED', 'REJECTED')</td></tr>
+            </tbody>
+        </table>
+
+        <h3>6. ตาราง receipts (ใบเสร็จรับเงินอย่างเป็นทางการ) และ 7. receipt_items</h3>
+        <p>ตารางหลักเก็บเอกสารหัวกระดาษใบเสร็จ ส่วนตารางลูกใช้พิมพ์รายการสรุปที่แสดงให้ลูกค้าเห็น:</p>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ตาราง (Table Name)</th><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 20%;">ประเภทคีย์</th><th style="width: 30%;">ความหมายและความเชื่อมโยง</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>receipts</td><td>receipt_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสใบเสร็จหลักในระบบฐานข้อมูล</td></tr>
+                <tr><td>receipts</td><td>payment_id</td><td><span class="badge badge-fk">FK</span></td><td>รหัสการรับเงินอ้างอิง (เชื่อม payments)</td></tr>
+                <tr><td>receipts</td><td>invoice_id</td><td><span class="badge badge-fk">FK</span></td><td>รหัสใบแจ้งหนี้อ้างอิง (เชื่อม invoices)</td></tr>
+                <tr><td>receipts</td><td>issued_by</td><td><span class="badge badge-fk">FK</span></td><td>รหัสพนักงานการเงินผู้พิมพ์ (เชื่อม H7)</td></tr>
+                <tr><td>receipt_items</td><td>receipt_item_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสรายการพิมพ์ย่อยบนใบเสร็จ</td></tr>
+                <tr><td>receipt_items</td><td>receipt_id</td><td><span class="badge badge-fk">FK</span></td><td>ลิงก์เชื่อมตารางแม่ (เชื่อม receipts ON DELETE CASCADE)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>8. ตาราง refunds (การคืนเงินกรณีผิดพลาด) และ 9. deposits (เงินมัดจำล่วงหน้า)</h3>
+        <p>ใช้ควบคุมความโปร่งใสในกรณีที่มีการยกเลิกบริการรักษา หรือการสำรองวงเงินห้องพักผู้ป่วยใน:</p>
+        <table>
+            <thead>
+                <tr><th style="width: 25%;">ตาราง (Table Name)</th><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 20%;">ประเภทคีย์</th><th style="width: 30%;">ความหมายและความเชื่อมโยง</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>refunds</td><td>refund_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสขอคืนเงินธุรกรรม</td></tr>
+                <tr><td>refunds</td><td>payment_id / invoice_id</td><td><span class="badge badge-fk">FK</span></td><td>ลิงก์เชื่อมโยงยอดจ่ายและใบแจ้งหนี้หลัก</td></tr>
+                <tr><td>refunds</td><td>approved_by</td><td><span class="badge badge-fk">FK</span></td><td>รหัสผู้จัดการการเงินผู้อนุมัติคืนเงิน (เชื่อม H7)</td></tr>
+                <tr><td>deposits</td><td>deposit_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสธุรกรรมฝากเงินมัดจำ IPD</td></tr>
+                <tr><td>deposits</td><td>patient_id / invoice_id</td><td><span class="badge badge-fk">FK</span></td><td>ลิงก์ข้อมูลผู้ป่วย (เชื่อม H1) และใบแจ้งหนี้ตอนหักมัดจำ</td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <span>รายงานวิเคราะห์ระบบย่อยก่อนรวม - H3 การเงิน</span>
+            <span>หน้า 4</span>
+        </div>
+    </div>
+
+    <!-- PAGE 5: ENTITIES & ATTRIBUTES (10-13) + PK/FK SUMMARY -->
+    <div class="page" style="height: 270mm;">
+        <h2>2. รายละเอียดตารางและแอตทริบิวต์ (Entities & Attributes) - ส่วนที่ 3</h2>
+        <p>รายละเอียดโครงสร้างของตารางความโปร่งใสทางการเงิน กฎส่วนลด การตรวจสอบ และตารางสรุปคีย์อ้างอิง:</p>
+
+        <h3>10. discount_rules, 11. price_history, 12. bank_reconciliation, 13. audit_log</h3>
+        <table>
+            <thead>
+                <tr><th style="width: 20%;">ตาราง (Table Name)</th><th style="width: 25%;">ชื่อฟิลด์ (Attribute)</th><th style="width: 20%;">ประเภทคีย์</th><th style="width: 35%;">ความหมายและความเชื่อมโยง</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>discount_rules</td><td>rule_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสโปรโมชันส่วนลดและเงื่อนไขการใช้</td></tr>
+                <tr><td>price_history</td><td>history_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสประวัติบันทึกการปรับราคากลางบริการ</td></tr>
+                <tr><td>price_history</td><td>service_id / changed_by</td><td><span class="badge badge-fk">FK</span></td><td>บริการที่ปรับราคา (เชื่อม billing_services) / ผู้ปรับราคา (เชื่อม H7)</td></tr>
+                <tr><td>bank_reconciliation</td><td>reconciliation_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสตรวจสอบกระทบยอดโอนเงิน</td></tr>
+                <tr><td>bank_reconciliation</td><td>payment_id / reconciled_by</td><td><span class="badge badge-fk">FK</span></td><td>ยอดจ่ายในระบบ (เชื่อม payments) / นักบัญชีผู้ตรวจ (เชื่อม H7)</td></tr>
+                <tr><td>audit_log</td><td>log_id</td><td><span class="badge badge-pk">PK</span></td><td>รหัสบันทึกกิจกรรม DML ของพนักงาน</td></tr>
+                <tr><td>audit_log</td><td>performed_by</td><td><span class="badge badge-fk">FK</span></td><td>รหัสพนักงานผู้เรียกใช้คำสั่ง SQL (เชื่อม H7)</td></tr>
+            </tbody>
+        </table>
+
+        <h2>3. Primary Key และ Foreign Key (PK & FK Mapping)</h2>
+        <p>แผนผังความสัมพันธ์คีย์เชื่อมโยงข้อมูลภายในระบบย่อยโมดูล H3 และตารางอ้างอิงทั้งหมด:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 20%;">ตารางย่อย (Table Name)</th>
+                    <th style="width: 20%;">Primary Key (PK)</th>
+                    <th style="width: 25%;">Foreign Key (FK)</th>
+                    <th style="width: 30%;">เชื่อมต่อตารางภายนอก (Reference Table)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>`billing_services`</td><td>service_id</td><td>-</td><td>-</td></tr>
+                <tr><td>2</td><td>`invoices`</td><td>invoice_id</td><td>patient_id, visit_id</td><td>H1(patient_id), H2/H6(visit_id)</td></tr>
+                <tr><td>3</td><td>`invoice_items`</td><td>item_id</td><td>invoice_id, service_id</td><td>invoices(invoice_id), billing_services(service_id)</td></tr>
+                <tr><td>4</td><td>`payments`</td><td>payment_id</td><td>invoice_id, cashier_id</td><td>invoices(invoice_id), H7(staff_id)</td></tr>
+                <tr><td>5</td><td>`insurance_claims`</td><td>claim_id</td><td>invoice_id</td><td>invoices(invoice_id)</td></tr>
+                <tr><td>6</td><td>`receipts`</td><td>receipt_id</td><td>payment_id, invoice_id, issued_by</td><td>payments, invoices, H7(staff_id)</td></tr>
+                <tr><td>7</td><td>`receipt_items`</td><td>receipt_item_id</td><td>receipt_id</td><td>receipts(receipt_id) ON DELETE CASCADE</td></tr>
+                <tr><td>8</td><td>`refunds`</td><td>refund_id</td><td>payment_id, invoice_id, approved_by</td><td>payments, invoices, H7(staff_id)</td></tr>
+                <tr><td>9</td><td>`deposits`</td><td>deposit_id</td><td>patient_id, invoice_id</td><td>H1(patient_id), invoices(invoice_id) *(Nullable)*</td></tr>
+                <tr><td>10</td><td>`discount_rules`</td><td>rule_id</td><td>-</td><td>-</td></tr>
+                <tr><td>11</td><td>`price_history`</td><td>history_id</td><td>service_id, changed_by</td><td>billing_services, H7(staff_id)</td></tr>
+                <tr><td>12</td><td>`bank_reconciliation`</td><td>reconciliation_id</td><td>payment_id, reconciled_by</td><td>payments*(Nullable)*, H7(staff_id)</td></tr>
+                <tr><td>13</td><td>`audit_log`</td><td>log_id</td><td>performed_by</td><td>H7(staff_id)</td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <span>รายงานวิเคราะห์ระบบย่อยก่อนรวม - H3 การเงิน</span>
+            <span>หน้า 5</span>
+        </div>
+    </div>
+
+    <!-- PAGE 6: INTER-SYSTEM CONNECTIONS & DATA OVERLAPS -->
+    <div class="page" style="height: 270mm;">
+        <h2>4. ตารางที่ต้องเชื่อมกับระบบอื่น (Inter-system Connection Tables)</h2>
+        <p>การเชื่อมโยงระบบการเงิน H3 กับแผนกอื่น ๆ ของเพื่อนร่วมทีมเพื่อบูรณาการเป็นฐานข้อมูลใหญ่ของโรงพยาบาล:</p>
+        <ul>
+            <li><strong>การรับผู้ป่วยและระบุตัวตน (เชื่อมต่อโมดูล H1 Patient Registration)</strong>:
+                <br>ตาราง `invoices` และ `deposits` เชื่อมต่อโดยใช้ `patient_id` ลิงก์ไปยังตารางประวัติผู้ป่วย เพื่อดึงชื่อ-นามสกุลจริง, สิทธิ์พื้นฐานการรักษาพยาบาล (เช่น ประกันสังคม บัตรทอง), โรคประจำตัว, ประวัติการแพ้ยา และที่อยู่ในการจัดส่งเอกสารใบเสร็จอย่างเป็นทางการ
+            </li>
+            <li><strong>ประวัติและขั้นตอนการรักษา (เชื่อมต่อโมดูล H2 OPD / H6 IPD)</strong>:
+                <br>ตาราง `invoices` จะใช้ `visit_id` เชื่อมต่อไปยังแผนกผู้ป่วยนอกหรือข้อมูลการจองเตียงผู้ป่วยใน เพื่อตรวจเช็กสถานะการรักษาจริงว่าสิ้นสุดลงหรือแพทย์จำหน่ายผู้ป่วย (Discharge) เรียบร้อยแล้ว จึงจะทำการดึงข้อมูลประเภทโรค ยอดค่าบริการแล็บ และค่าแพทย์มาคำนวณบิลได้อย่างถูกต้อง
+            </li>
+            <li><strong>ฝ่ายบุคคลและการอนุมัติ (เชื่อมต่อโมดูล H7 Staff / HR / System Users)</strong>:
+                <br>ตารางประวัติการทำงานและล็อกประวัติการแก้ไขข้อมูลทั้งหมดจะอ้างอิง `staff_id` หรือ `user_id` จากโมดูล H7 เสมอ เช่น `cashier_id` (ผู้รับเงิน), `issued_by` (ผู้ออกใบเสร็จ), `approved_by` (ผู้จัดการผู้อนุมัติคืนเงิน), `changed_by` (ผู้ปรับราคากลาง), `reconciled_by` (นักบัญชีผู้ตรวจสอบสเตตเมนต์) และ `performed_by` (ผู้ทำคำสั่ง SQL ย้อนหลังใน `audit_log`) เพื่อทำการยืนยันสิทธิ์ความปลอดภัยในระบบ (RBAC)
+            </li>
+        </ul>
+
+        <h2>5. ข้อมูลที่อาจซ้ำกับเพื่อน (Potential Data Overlaps)</h2>
+        <p>การวิเคราะห์ความซ้ำซ้อนของตารางในโมดูล H3 และข้อตกลงแนวทางแก้ไขในการรวมฐานข้อมูลโรงพยาบาลร่วมกับเพื่อนร่วมทีม:</p>
+        
+        <div class="grid-container">
+            <div class="callout callout-warning">
+                <div class="callout-title">⚠️ ค่ายาและเวชภัณฑ์ (ทับซ้อน H4)</div>
+                ใน `billing_services` ของการเงินมีการบันทึกยาพร้อมราคากลาง แต่ตารางยาหลักและจำนวนคลังสต็อกยาถูกจัดเก็บใน **โมดูล H4 (Pharmacy & Inventory)**  
+                <strong>แนวทางร่วม:</strong> ให้ H4 เป็นผู้เก็บรายละเอียดประเภทและรหัสยาหลัก ส่วน H3 ให้ใช้ Foreign Key ลิงก์รหัสยาจาก H4 และจัดเก็บเฉพาะราคาประเมินเรียกเก็บเงิน
+            </div>
+            <div class="callout callout-warning">
+                <div class="callout-title">⚠️ ข้อมูลห้องพัก (ทับซ้อน H6)</div>
+                ข้อมูลค่าห้องพักผู้ป่วย (ROOM category) ใน `billing_services` อาจซ้ำกับตารางสถานะเตียงนอนและการจองห้องพักในหอผู้ป่วยของ **โมดูล H6 (IPD Management)**  
+                <strong>แนวทางร่วม:</strong> ให้ H6 ควบคุมและจัดกลุ่มประเภทห้องพักและสิทธิ์จองเตียง ส่วน H3 เข้ามาผูกราคากลางของค่าห้องเพื่อคำนวณยอดเงินตามจำนวนวันที่พักจริง
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="callout callout-warning">
+                <div class="callout-title">⚠️ รายการวิเคราะห์แล็บ (ทับซ้อน H5)</div>
+                ราคาค่าแล็บและตรวจปัสสาวะ/เลือด (`LABORATORY` category) อาจทับซ้อนกับตารางการสั่งแล็บและชุดผลลัพธ์ของ **โมดูล H5 (Laboratory)**  
+                <strong>แนวทางร่วม:</strong> H5 ดูแลเรื่องผลการวิเคราะห์และวิธีการตรวจแล็บทางการแพทย์ ส่วน H3 เก็บตารางอัตราค่าธรรมเนียมการตรวจแล็บตามรหัสแล็บนั้น ๆ
+            </div>
+            <div class="callout callout-warning">
+                <div class="callout-title">⚠️ สิทธิ์การรักษาพยาบาล (ทับซ้อน H1)</div>
+                ตารางประกันสุขภาพผู้ป่วย `insurance_claims` จัดเก็บเลขกรมธรรม์และชื่อประกัน ซึ่งอาจซ้ำซ้อนกับข้อมูลสิทธิ์รักษาหลักใน **โมดูล H1 (Patient)**  
+                <strong>แนวทางร่วม:</strong> บันทึกรายละเอียดประกันเฉพาะส่วนธุรกรรมเบิกเคลมใน H3 ส่วนข้อมูลประเภทสิทธิ์ถาวรของผู้ป่วยให้เรียกสืบค้นผ่าน H1
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>รายงานวิเคราะห์ระบบย่อยก่อนรวม - H3 การเงิน</span>
+            <span>หน้า 6</span>
+        </div>
+    </div>
+
+    <!-- PAGE 7: BUSINESS RULES & SENSITIVE DATA -->
+    <div class="page" style="height: 270mm;">
+        <h2>6. กฎทางธุรกิจที่สำคัญ (Important Business Rules)</h2>
+        <p>กฎทางธุรกิจที่ช่วยปกป้องความมั่นคงปลอดภัยและความน่าเชื่อถือทางบัญชีการเงินของสถานพยาบาล:</p>
+        
+        <div class="callout callout-danger">
+            <div class="callout-title">🚨 กฎความไม่สามารถแก้ไขประวัติธุรกรรมได้ (Immutability Enforcement)</div>
+            ธุรกรรมการชำระเงินและใบเสร็จรับเงินในตาราง `payments` และ `receipts` ที่เกิดการบันทึกสำเร็จเรียบร้อยแล้ว <strong>ห้ามทำการลบ (DELETE) หรืออัปเดตยอดเงินชำระ (UPDATE) โดยเด็ดขาด</strong> เพื่อบล็อกโอกาสพนักงานฉ้อโกงเงินสด  
+            <br><em>มาตรการควบคุม:</em> สร้าง Database Triggers เพื่อบล็อก DML ประเภทดังกล่าวในระดับตัวฐานข้อมูล หากพนักงานทำรายการชำระผิด ต้องผ่านขั้นตอนการทำเอกสารขอคืนเงิน (`refunds`) เพื่อให้มีล็อกตรวจสอบเสมอ
+        </div>
+
+        <div class="callout">
+            <div class="callout-title">💡 กฎประวัติราคาและเงินมัดจำ (Price Rules & Deposits Lifecycle)</div>
+            <ul>
+                <li><strong>Non-Retroactive pricing</strong>: การแก้ไขปรับเปลี่ยนอัตราค่ายากลางหรือบริการตรวจโรคในตาราง `billing_services` จะไม่มีผลย้อนหลังกับใบแจ้งหนี้หรือใบเสร็จรับเงินที่ทำการคำนวณเงินและชำระไปเรียบร้อยแล้วก่อนวันประกาศราคาใหม่</li>
+                <li><strong>Bank statement matching</strong>: ยอดชำระเงินประเภทธุรกรรมโอนผ่านธนาคารหรือพร้อมเพย์ในระบบ จะต้องถูกตรวจพิสูจน์เทียบกับสเตตเมนต์ธนาคารใน `bank_reconciliation` ให้มีเลขอ้างอิงและยอดเงินตรงกันจริงเท่านั้น จึงจะผ่านสิทธิ์และมีสถานะเป็น `MATCHED`</li>
+                <li><strong>Deposit IPD lock</strong>: เงินมัดจำล่วงหน้าของผู้ป่วยนอนโรงพยาบาลในตาราง `deposits` จะอยู่ในสถานะถูกล็อกสิทธิ์ (`HELD`) และไม่สามารถนำไปใช้ในจุดประสงค์อื่นได้จนกว่าแพทย์จะสั่งจำหน่ายผู้ป่วย (Discharge Action) ซึ่งระบบจะย้ายเงินมัดจำนี้ไปหักลบกับบิลยอดเงินแจ้งหนี้หลัก (`invoices`) อัตโนมัติ</li>
+            </ul>
+        </div>
+
+        <h2>7. ข้อมูลส่วนบุคคลและข้อมูลอ่อนไหว (Sensitive Data & PDPA)</h2>
+        <p>การวิเคราะห์ระดับความเสี่ยงของข้อมูลส่วนบุคคลตามกฎหมาย PDPA และการวางมาตรการป้องกันความปลอดภัย:</p>
+        
+        <ul>
+            <li><strong>ข้อมูลธุรกรรมการเงินและการเคลม (Financial Sensitive Data)</strong>:
+                <br>รายละเอียดสลิปโอนเงิน ประวัติการใช้บัตรเครดิต และเลขกรมธรรม์ประกันในตาราง `payments` และ `insurance_claims` ถือเป็นข้อมูลส่วนบุคคลที่มีความอ่อนไหวสูง หากมีบุคคลภายนอกล่วงรู้ อาจนำไปสืบค้นหาข้อมูลการเงินหรือสิทธิประโยชน์ของผู้ป่วยได้ มาตรการจำกัดการเข้าใช้จึงถูกตั้งค่าผ่านการสิทธิ์ Role-Based Access Control ในโมดูล H7
+            </li>
+            <li><strong>ประวัติข้อมูลสุขภาพส่วนบุคคลจากชื่อค่าใช้จ่าย (Sensitive Health Data)</strong>:
+                <br>ชื่อบริการเฉพาะในตาราง `invoice_items.item_name` และ `receipt_items.item_description` เช่น "ค่ายารักษาโรคจิตเวชรุนแรง", "ค่าเคมีบำบัดมะเร็ง", หรือ "ค่าตรวจวินิจฉัยเชื้อไวรัสเอดส์" ข้อมูลเหล่านี้สามารถเผยโรคประจำตัวทางตรงของผู้ป่วยได้ ถือเป็น Sensitive Data (Health Data) ตามข้อกฎหมาย PDPA โรงพยาบาลจึงได้ออกแบบ SQL View เพื่อซ่อนข้อมูล (Data Masking) และแสดงเพียงหัวหมวดหมู่ เช่น "ค่ายาผู้ป่วยนอก" หรือ "ค่าบริการแล็บทั่วไป" ให้แก่บุคคลอื่น
+            </li>
+            <li><strong>การป้องกันข้อมูลรั่วไหลข้ามสิทธิ์ (Row-Level Security / RLS)</strong>:
+                <br>ระบบจัดการฐานข้อมูลต้องกำหนดนโยบายความปลอดภัย RLS บนตาราง `invoices`, `payments`, `refunds` และ `deposits` เพื่อบล็อกผู้ใช้งานระดับทั่วไปให้เข้าถึงเพื่อเรียกดูเฉพาะเอกสารการเงินของ **ตนเองเท่านั้น** (โดยคัดกรองจากพารามิเตอร์ `app.current_patient_id` ในเซสชันผู้ใช้งาน) และเปิดสิทธิ์การมองเห็นบิลผู้ป่วยทั้งหมดให้เฉพาะพนักงานการเงินและพนักงานตรวจสอบบัญชีที่ได้รับอนุญาตเท่านั้น
+            </li>
+        </ul>
+
+        <div class="footer">
+            <span>รายงานวิเคราะห์ระบบย่อยก่อนรวม - H3 การเงิน</span>
+            <span>หน้า 7</span>
+        </div>
+    </div>
+
+</body>
+</html>
