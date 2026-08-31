@@ -1,23 +1,26 @@
-# 📁 โฟลเดอร์งานของโมดูล H6: ระบบผู้ป่วยในและหอผู้ป่วย (Inpatient & Wards)
-**ผู้รับผิดชอบ:** สมาชิก H6
+# 📁 พื้นที่ส่งงาน: H6: ระบบผู้ป่วยในและหอผู้ป่วย (Inpatient & Wards)
+**ผู้รับผิดชอบ:** วริศรา (สมาชิก H6)  
+**ขอบเขตข้อมูลหลัก:** Admit เตียง วอร์ด การย้าย การจำหน่าย (เชื่อมต่อ H1, H3, H4, H5, H7)  
 
 ---
 
-### 📋 สิ่งที่สมาชิก H6 ต้องอัปโหลดลงในโฟลเดอร์นี้:
-ให้แตก Branch ของตนเอง (เช่น `feature/H6-inpatient-ward`) แล้วอัปโหลดไฟล์ของระบบตนเองเข้ามาที่โฟลเดอร์นี้:
+### 📦 รายการไฟล์สำหรับส่งงานของระบบนี้ (Individual Submission Checklist):
 
-1. **`01_tables.sql`**: คำสั่ง `CREATE TABLE` ในระบบย่อย H6 (เช่น `wards`, `beds`, `admissions`, `bed_transfers` พร้อม Primary Key ทุกตาราง)
-2. **`02_foreign_keys.sql`**: คำสั่ง Foreign Key ที่เชื่อมโยงข้ามระบบ:
-   - เชื่อมผู้ป่วย: `FOREIGN KEY (patient_id) REFERENCES patient_system.patients(patient_id)`
-   - เชื่อมแพทย์เจ้าของไข้: `FOREIGN KEY (attending_doctor_id) REFERENCES staff_system.doctors(doctor_id)`
-   - เชื่อมแผนก: `FOREIGN KEY (department_id) REFERENCES staff_system.departments(department_id)`
-3. **`03_sample_data.sql`**: ข้อมูลตัวอย่างเตียง วอร์ด และประวัติ Admit/ย้ายเตียง
-4. **`04_queries_and_tests.sql`**:
-   - Query อย่างน้อย 2 ข้อ
-   - Test Case อย่างน้อย 2 กรณี
-   - Role และสิทธิ์ที่เกี่ยวข้อง
-5. **`er_diagram.png`**: ภาพ ER Diagram ระบบย่อย H6
-6. **`SUBSYSTEM_ANALYSIS_รหัสนักศึกษา.pdf`**: รายงานวิเคราะห์ระบบย่อย 7 หัวข้อ (งานที่ 1)
+ตามข้อกำหนดของอาจารย์ในโครงงานบูรณาการฐานข้อมูล สมาชิกแต่ละคนต้องมีไฟล์ส่งมอบในโฟลเดอร์นี้ดังต่อไปนี้:
+
+1. 📄 **`SUBSYSTEM_ANALYSIS_<รหัสนักศึกษา>.pdf`**: เอกสารวิเคราะห์ระบบย่อยก่อนรวม (งานที่ 1 ครบ 7 หัวข้อ)
+2. 📊 **`er_diagram.png`**: แผนภาพ ER Diagram ของระบบย่อยตนเองตามมาตรฐาน 3NF
+3. 💾 **`01_tables_and_constraints.sql`**: สคริปต์ DDL สร้างตาราง, Primary Key, และ Foreign Key เชื่อมโยงข้ามระบบ
+4. 📝 **`02_queries_and_tests.sql`**: คำสั่ง SQL Query อย่างน้อย 2 ข้อ และ Test Cases ตรวจสอบความถูกต้องอย่างน้อย 2 กรณี
+5. 🧪 **`03_sample_data.sql`**: ข้อมูลตัวอย่างทดสอบที่เชื่อมโยงกับระบบอื่นได้จริง
 
 ---
-💡 *ดูตัวอย่างรูปแบบไฟล์ที่สมบูรณ์ได้จากโฟลเดอร์ `H1_patient_registration/`*
+
+### 🔗 จุดเชื่อมโยงสำคัญ (Integration Endpoints):
+* **ผู้ป่วยกลาง (H1):** เชื่อมโยงผ่าน `patient_system.patients(patient_id)` (VARCHAR)
+* **แพทย์กลาง (H7):** เชื่อมโยงผ่าน `staff_system.doctors(doctor_id)` (VARCHAR)
+* **สิทธิประกัน (H1):** เชื่อมโยงผ่าน `patient_system.patient_insurance_policies(policy_id)` (INT)
+* **สาขาโรงพยาบาล (H1):** เชื่อมโยงผ่าน `patient_system.hospital_branches(branch_id)` (VARCHAR)
+
+---
+*Enterprise Hospital Database Group 2 Integration Project*
