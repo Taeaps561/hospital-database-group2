@@ -1,0 +1,472 @@
+-- =====================================================================
+-- HOSPITAL HR SYSTEM - SCHEMA (SAFE / IDEMPOTENT VERSION)
+-- รันซ้ำได้กี่ครั้งก็ได้โดยไม่ error ไม่ว่าตอนนี้ schema จะมีตารางอยู่แล้ว
+-- บางส่วนหรือไม่มีเลยก็ตาม -- ตารางไหนมีอยู่แล้วจะถูกข้าม ตารางไหนยังไม่มี
+-- จะถูกสร้างเพิ่มให้ครบ ผลลัพธ์สุดท้ายจะได้ทั้งหมด 22 ตารางเสมอ
+-- Target: PostgreSQL 13+
+-- =====================================================================
+
+-- ไม่ต้องใช้ CREATE EXTENSION pgcrypto เพราะ PostgreSQL 13+ มี
+-- gen_random_uuid() ในตัวอยู่แล้ว
+
+
+-- =====================================================================
+-- 1) ตาราง lookup พื้นฐาน
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS titles (
+    title_id     serial PRIMARY KEY,
+    title_name   character varying(30) NOT NULL UNIQUE
+);
+
+INSERT INTO titles (title_name) VALUES
+    ('นาย'), ('นาง'), ('นางสาว'), ('เด็กชาย'), ('เด็กหญิง')
+ON CONFLICT (title_name) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS genders (
+    gender_id     serial PRIMARY KEY,
+    gender_name   character varying(20) NOT NULL UNIQUE
+);
+
+INSERT INTO genders (gender_name) VALUES
+    ('ชาย'), ('หญิง'), ('ไม่ระบุ')
+ON CONFLICT (gender_name) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS shift_types (
+    shift_type_id   serial PRIMARY KEY,
+    shift_name      character varying(50) NOT NULL,
+    start_time      time NOT NULL,
+    end_time        time NOT NULL,
+    description     text
+);
+
+CREATE TABLE IF NOT EXISTS specialties (
+    specialty_id    serial PRIMARY KEY,
+    specialty_name  character varying(150) NOT NULL,
+    description     text
+);
+
+CREATE TABLE IF NOT EXISTS leave_types (
+    leave_type_id     serial PRIMARY KEY,
+    leave_name        character varying(50) NOT NULL,
+    max_days_per_year integer,
+    description       text
+);
+
+CREATE TABLE IF NOT EXISTS roles (
+    role_id       serial PRIMARY KEY,
+    role_name     character varying(50) NOT NULL UNIQUE,
+    description   text
+);
+
+
+-- =====================================================================
+-- 2) ตารางหลัก
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS departments (
+    department_id      serial PRIMARY KEY,
+    department_name    character varying(100) NOT NULL,
+    contact_number      character varying(20),
+    department_head_id  uuid
+);
+
+CREATE TABLE IF NOT EXISTS positions (
+    position_id     serial PRIMARY KEY,
+    position_name   character varying(100) NOT NULL,
+    base_salary      numeric(10,2)
+);
+
+CREATE TABLE IF NOT EXISTS employees (
+    employee_id       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    title_id            integer REFERENCES titles(title_id),
+    gender_id             integer REFERENCES genders(gender_id),
+    first_name               character varying(100) NOT NULL,
+    last_name                   character varying(100) NOT NULL,
+    national_id                    character varying(13),
+    date_of_birth                     date,
+    hire_date                            date,
+    department_id                           integer NOT NULL REFERENCES departments(department_id),
+    position_id                                integer NOT NULL REFERENCES positions(position_id),
+    status                                        character varying(20),
+    phone                                            character varying(20),
+    email                                               character varying(150) UNIQUE,
+    address                                                text,
+    marital_status                                            character varying(20),
+    photo_url                                                    text
+);
+
+ALTER TABLE employees
+    ADD COLUMN IF NOT EXISTS title_id integer REFERENCES titles(title_id),
+    ADD COLUMN IF NOT EXISTS gender_id integer REFERENCES genders(gender_id),
+    ADD COLUMN IF NOT EXISTS phone character varying(20),
+    ADD COLUMN IF NOT EXISTS email character varying(150),
+    ADD COLUMN IF NOT EXISTS address text,
+    ADD COLUMN IF NOT EXISTS marital_status character varying(20),
+    ADD COLUMN IF NOT EXISTS photo_url text;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'fk_departments_head'
+    ) THEN
+        ALTER TABLE departments
+            ADD CONSTRAINT fk_departments_head
+            FOREIGN KEY (department_head_id) REFERENCES employees(employee_id);
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS medical_licenses (
+    license_id           serial PRIMARY KEY,
+    employee_id            uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    license_type              character varying(100),
+    license_number               character varying(50),
+    issued_date                     date,
+    expiry_date                        date,
+    issuing_authority                     character varying(150),
+    status                                    character varying(20) NOT NULL DEFAULT 'active'
+);
+
+ALTER TABLE medical_licenses
+    ADD COLUMN IF NOT EXISTS issuing_authority character varying(150),
+    ADD COLUMN IF NOT EXISTS status character varying(20) NOT NULL DEFAULT 'active';
+
+CREATE TABLE IF NOT EXISTS work_shifts (
+    shift_id         serial PRIMARY KEY,
+    employee_id         uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    shift_date              date NOT NULL,
+    shift_type                  character varying(20),
+    shift_type_id                   integer REFERENCES shift_types(shift_type_id)
+);
+
+ALTER TABLE work_shifts
+    ADD COLUMN IF NOT EXISTS shift_type_id integer REFERENCES shift_types(shift_type_id);
+
+
+-- =====================================================================
+-- 3) ตารางเชื่อมความสัมพันธ์และ lookup เสริม
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS employee_specialties (
+    employee_id     uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    specialty_id    integer NOT NULL REFERENCES specialties(specialty_id) ON DELETE CASCADE,
+    certified_date  date,
+    PRIMARY KEY (employee_id, specialty_id)
+);
+
+
+-- =====================================================================
+-- 4) ประวัติการโยกย้ายแผนก/ตำแหน่ง
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS employee_department_history (
+    history_id    serial PRIMARY KEY,
+    employee_id     uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    department_id      integer NOT NULL REFERENCES departments(department_id),
+    start_date            date NOT NULL,
+    end_date                 date
+);
+
+CREATE TABLE IF NOT EXISTS employee_position_history (
+    history_id    serial PRIMARY KEY,
+    employee_id     uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    position_id       integer NOT NULL REFERENCES positions(position_id),
+    start_date            date NOT NULL,
+    end_date                 date
+);
+
+
+-- =====================================================================
+-- 5) การลา / การเข้างาน
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS leave_requests (
+    leave_request_id   serial PRIMARY KEY,
+    employee_id           uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    leave_type_id            integer NOT NULL REFERENCES leave_types(leave_type_id),
+    start_date                  date NOT NULL,
+    end_date                       date NOT NULL,
+    reason                            text,
+    status                               character varying(20) NOT NULL DEFAULT 'pending',
+    approved_by                            uuid REFERENCES employees(employee_id),
+    requested_at                              timestamp NOT NULL DEFAULT now(),
+    approved_at                                  timestamp,
+    CHECK (end_date >= start_date)
+);
+
+CREATE TABLE IF NOT EXISTS attendance (
+    attendance_id    serial PRIMARY KEY,
+    employee_id         uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    shift_id               integer REFERENCES work_shifts(shift_id),
+    work_date                 date NOT NULL,
+    check_in_time                timestamp,
+    check_out_time                  timestamp,
+    status                             character varying(20) DEFAULT 'present'
+);
+
+
+-- =====================================================================
+-- 6) สัญญาจ้าง / เงินเดือน
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS employee_contracts (
+    contract_id        serial PRIMARY KEY,
+    employee_id           uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    contract_type            character varying(50) NOT NULL,
+    start_date                  date NOT NULL,
+    end_date                       date,
+    probation_end_date                date,
+    contract_file_url                    text,
+    is_active                                boolean NOT NULL DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS payroll (
+    payroll_id         serial PRIMARY KEY,
+    employee_id           uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    pay_period_start         date NOT NULL,
+    pay_period_end              date NOT NULL,
+    net_amount                     numeric(10,2) NOT NULL,
+    paid_at                           timestamp,
+    status                               character varying(20) NOT NULL DEFAULT 'pending'
+);
+
+CREATE TABLE IF NOT EXISTS payroll_items (
+    payroll_item_id     serial PRIMARY KEY,
+    payroll_id             integer NOT NULL REFERENCES payroll(payroll_id) ON DELETE CASCADE,
+    item_type                 character varying(20) NOT NULL,
+    item_name                    character varying(100) NOT NULL,
+    amount                          numeric(10,2) NOT NULL
+);
+
+
+-- =====================================================================
+-- 7) ข้อมูลเสริม
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS emergency_contacts (
+    contact_id        serial PRIMARY KEY,
+    employee_id          uuid NOT NULL REFERENCES employees(employee_id) ON DELETE CASCADE,
+    contact_name            character varying(150) NOT NULL,
+    relationship               character varying(50),
+    phone_number                  character varying(20) NOT NULL
+);
+
+
+-- =====================================================================
+-- 8) ระบบผู้ใช้ / สิทธิ์การเข้าถึง / audit log
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS users (
+    user_id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id          uuid UNIQUE REFERENCES employees(employee_id) ON DELETE CASCADE,
+    username                character varying(100) NOT NULL UNIQUE,
+    password_hash              text NOT NULL,
+    role_id                       integer NOT NULL REFERENCES roles(role_id),
+    is_active                        boolean NOT NULL DEFAULT true,
+    last_login_at                       timestamp,
+    created_at                             timestamp NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+    audit_id          serial PRIMARY KEY,
+    user_id               uuid REFERENCES users(user_id),
+    action                   character varying(50) NOT NULL,
+    table_name                  character varying(100) NOT NULL,
+    record_id                      text,
+    old_values                        jsonb,
+    new_values                           jsonb,
+    created_at                              timestamp NOT NULL DEFAULT now()
+);
+
+
+-- =====================================================================
+-- 9) Indexes
+-- =====================================================================
+
+CREATE INDEX IF NOT EXISTS idx_employees_title ON employees(title_id);
+CREATE INDEX IF NOT EXISTS idx_employees_gender ON employees(gender_id);
+CREATE INDEX IF NOT EXISTS idx_employees_department ON employees(department_id);
+CREATE INDEX IF NOT EXISTS idx_employees_position ON employees(position_id);
+CREATE INDEX IF NOT EXISTS idx_attendance_employee_date ON attendance(employee_id, work_date);
+CREATE INDEX IF NOT EXISTS idx_leave_requests_employee ON leave_requests(employee_id);
+CREATE INDEX IF NOT EXISTS idx_payroll_employee_period ON payroll(employee_id, pay_period_start);
+CREATE INDEX IF NOT EXISTS idx_payroll_items_payroll ON payroll_items(payroll_id);
+CREATE INDEX IF NOT EXISTS idx_work_shifts_employee_date ON work_shifts(employee_id, shift_date);
+CREATE INDEX IF NOT EXISTS idx_medical_licenses_employee ON medical_licenses(employee_id);
+CREATE INDEX IF NOT EXISTS idx_dept_history_employee ON employee_department_history(employee_id);
+CREATE INDEX IF NOT EXISTS idx_pos_history_employee ON employee_position_history(employee_id);
+
+
+-- =====================================================================
+-- 10) คำอธิบายตาราง/คอลัมน์เป็นภาษาไทย (Comments)
+-- =====================================================================
+
+COMMENT ON TABLE titles IS 'คำนำหน้าชื่อ เช่น นาย นาง นางสาว';
+COMMENT ON COLUMN titles.title_id IS 'รหัสคำนำหน้าชื่อ (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN titles.title_name IS 'ชื่อคำนำหน้า เช่น นาย นาง นางสาว';
+
+COMMENT ON TABLE genders IS 'เพศของพนักงาน';
+COMMENT ON COLUMN genders.gender_id IS 'รหัสเพศ (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN genders.gender_name IS 'ชื่อเพศ เช่น ชาย หญิง ไม่ระบุ';
+
+COMMENT ON TABLE shift_types IS 'มาตรฐานประเภทเวรทำงาน (เช้า/บ่าย/ดึก) พร้อมช่วงเวลา';
+COMMENT ON COLUMN shift_types.shift_type_id IS 'รหัสประเภทเวร (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN shift_types.shift_name IS 'ชื่อประเภทเวร เช่น เช้า บ่าย ดึก';
+COMMENT ON COLUMN shift_types.start_time IS 'เวลาที่เริ่มเวร';
+COMMENT ON COLUMN shift_types.end_time IS 'เวลาที่สิ้นสุดเวร';
+COMMENT ON COLUMN shift_types.description IS 'รายละเอียดเพิ่มเติมของเวรนี้';
+
+COMMENT ON TABLE specialties IS 'สาขาความเชี่ยวชาญของบุคลากรทางการแพทย์';
+COMMENT ON COLUMN specialties.specialty_id IS 'รหัสสาขาความเชี่ยวชาญ (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN specialties.specialty_name IS 'ชื่อสาขา เช่น อายุรกรรม ศัลยกรรม';
+COMMENT ON COLUMN specialties.description IS 'รายละเอียดเพิ่มเติมของสาขานี้';
+
+COMMENT ON TABLE leave_types IS 'ประเภทการลาของพนักงาน';
+COMMENT ON COLUMN leave_types.leave_type_id IS 'รหัสประเภทการลา (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN leave_types.leave_name IS 'ชื่อประเภทการลา เช่น ลาป่วย ลากิจ ลาพักร้อน';
+COMMENT ON COLUMN leave_types.max_days_per_year IS 'จำนวนวันลาสูงสุดที่ใช้ได้ต่อปี';
+COMMENT ON COLUMN leave_types.description IS 'รายละเอียดเพิ่มเติมของประเภทการลานี้';
+
+COMMENT ON TABLE roles IS 'บทบาท/สิทธิ์การใช้งานระบบของผู้ใช้';
+COMMENT ON COLUMN roles.role_id IS 'รหัสบทบาท (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN roles.role_name IS 'ชื่อบทบาท เช่น admin, hr, staff';
+COMMENT ON COLUMN roles.description IS 'รายละเอียดสิทธิ์ของบทบาทนี้';
+
+COMMENT ON TABLE departments IS 'แผนกต่าง ๆ ในโรงพยาบาล';
+COMMENT ON COLUMN departments.department_id IS 'รหัสแผนก (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN departments.department_name IS 'ชื่อแผนก เช่น อายุรกรรม ศัลยกรรม การเงิน';
+COMMENT ON COLUMN departments.contact_number IS 'เบอร์โทรติดต่อของแผนก';
+COMMENT ON COLUMN departments.department_head_id IS 'รหัสพนักงานที่เป็นหัวหน้าแผนก (อ้างอิง employees)';
+
+COMMENT ON TABLE positions IS 'ตำแหน่งงานและฐานเงินเดือนของแต่ละตำแหน่ง';
+COMMENT ON COLUMN positions.position_id IS 'รหัสตำแหน่ง (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN positions.position_name IS 'ชื่อตำแหน่ง เช่น แพทย์ พยาบาล เภสัชกร';
+COMMENT ON COLUMN positions.base_salary IS 'ฐานเงินเดือนของตำแหน่งนี้';
+
+COMMENT ON TABLE employees IS 'ข้อมูลพนักงาน/บุคลากรของโรงพยาบาล (ตารางกลางของระบบ)';
+COMMENT ON COLUMN employees.employee_id IS 'รหัสพนักงาน (สร้างอัตโนมัติแบบ uuid)';
+COMMENT ON COLUMN employees.title_id IS 'คำนำหน้าชื่อ (อ้างอิง titles)';
+COMMENT ON COLUMN employees.gender_id IS 'เพศ (อ้างอิง genders)';
+COMMENT ON COLUMN employees.first_name IS 'ชื่อจริง';
+COMMENT ON COLUMN employees.last_name IS 'นามสกุล';
+COMMENT ON COLUMN employees.national_id IS 'เลขบัตรประชาชน 13 หลัก';
+COMMENT ON COLUMN employees.date_of_birth IS 'วันเดือนปีเกิด';
+COMMENT ON COLUMN employees.hire_date IS 'วันที่เริ่มเข้าทำงาน';
+COMMENT ON COLUMN employees.department_id IS 'แผนกที่สังกัดอยู่ในปัจจุบัน (อ้างอิง departments)';
+COMMENT ON COLUMN employees.position_id IS 'ตำแหน่งงานปัจจุบัน (อ้างอิง positions)';
+COMMENT ON COLUMN employees.status IS 'สถานะการทำงาน เช่น active, resigned, on leave';
+COMMENT ON COLUMN employees.phone IS 'เบอร์โทรศัพท์ติดต่อ';
+COMMENT ON COLUMN employees.email IS 'อีเมลติดต่อ';
+COMMENT ON COLUMN employees.address IS 'ที่อยู่ตามทะเบียนบ้านหรือที่อยู่ปัจจุบัน';
+COMMENT ON COLUMN employees.marital_status IS 'สถานภาพสมรส (ข้อมูลเสริม ไม่บังคับ)';
+COMMENT ON COLUMN employees.photo_url IS 'ลิงก์รูปถ่ายพนักงาน';
+
+COMMENT ON TABLE medical_licenses IS 'ใบประกอบวิชาชีพทางการแพทย์ของพนักงาน';
+COMMENT ON COLUMN medical_licenses.license_id IS 'รหัสใบอนุญาต (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN medical_licenses.employee_id IS 'พนักงานเจ้าของใบอนุญาต (อ้างอิง employees)';
+COMMENT ON COLUMN medical_licenses.license_type IS 'ประเภทใบอนุญาต เช่น ใบอนุญาตประกอบวิชาชีพเวชกรรม';
+COMMENT ON COLUMN medical_licenses.license_number IS 'เลขที่ใบอนุญาต';
+COMMENT ON COLUMN medical_licenses.issued_date IS 'วันที่ออกใบอนุญาต';
+COMMENT ON COLUMN medical_licenses.expiry_date IS 'วันที่ใบอนุญาตหมดอายุ';
+COMMENT ON COLUMN medical_licenses.issuing_authority IS 'หน่วยงานผู้ออกใบอนุญาต เช่น แพทยสภา สภาการพยาบาล';
+COMMENT ON COLUMN medical_licenses.status IS 'สถานะใบอนุญาต: active/suspended/revoked/expired';
+
+COMMENT ON TABLE work_shifts IS 'ตารางเวรทำงานที่พนักงานถูกจัดให้ (แผนล่วงหน้า ไม่ใช่เวลาเข้างานจริง)';
+COMMENT ON COLUMN work_shifts.shift_id IS 'รหัสเวร (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN work_shifts.employee_id IS 'พนักงานที่ถูกจัดเวรนี้ (อ้างอิง employees)';
+COMMENT ON COLUMN work_shifts.shift_date IS 'วันที่ของเวรนี้';
+COMMENT ON COLUMN work_shifts.shift_type IS 'ประเภทเวรแบบข้อความ (ค่าเก่า/legacy เก็บไว้เผื่อใช้)';
+COMMENT ON COLUMN work_shifts.shift_type_id IS 'ประเภทเวร (อ้างอิง shift_types แนะนำให้ใช้แทน shift_type)';
+
+COMMENT ON TABLE employee_specialties IS 'ความเชี่ยวชาญของพนักงานแต่ละคน (พนักงาน 1 คนมีได้หลายสาขา)';
+COMMENT ON COLUMN employee_specialties.employee_id IS 'พนักงาน (อ้างอิง employees)';
+COMMENT ON COLUMN employee_specialties.specialty_id IS 'สาขาความเชี่ยวชาญ (อ้างอิง specialties)';
+COMMENT ON COLUMN employee_specialties.certified_date IS 'วันที่ได้รับการรับรองความเชี่ยวชาญนี้';
+
+COMMENT ON TABLE employee_department_history IS 'ประวัติการย้ายแผนกของพนักงานย้อนหลัง';
+COMMENT ON COLUMN employee_department_history.history_id IS 'รหัสประวัติ (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN employee_department_history.employee_id IS 'พนักงาน (อ้างอิง employees)';
+COMMENT ON COLUMN employee_department_history.department_id IS 'แผนกที่สังกัดในช่วงเวลานั้น (อ้างอิง departments)';
+COMMENT ON COLUMN employee_department_history.start_date IS 'วันที่เริ่มสังกัดแผนกนี้';
+COMMENT ON COLUMN employee_department_history.end_date IS 'วันที่สิ้นสุด (ว่าง = ยังสังกัดอยู่ปัจจุบัน)';
+
+COMMENT ON TABLE employee_position_history IS 'ประวัติการเปลี่ยนตำแหน่งของพนักงานย้อนหลัง';
+COMMENT ON COLUMN employee_position_history.history_id IS 'รหัสประวัติ (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN employee_position_history.employee_id IS 'พนักงาน (อ้างอิง employees)';
+COMMENT ON COLUMN employee_position_history.position_id IS 'ตำแหน่งที่ดำรงในช่วงเวลานั้น (อ้างอิง positions)';
+COMMENT ON COLUMN employee_position_history.start_date IS 'วันที่เริ่มดำรงตำแหน่งนี้';
+COMMENT ON COLUMN employee_position_history.end_date IS 'วันที่สิ้นสุด (ว่าง = ยังดำรงตำแหน่งนี้อยู่ปัจจุบัน)';
+
+COMMENT ON TABLE leave_requests IS 'คำขอลาของพนักงานแต่ละครั้ง';
+COMMENT ON COLUMN leave_requests.leave_request_id IS 'รหัสคำขอลา (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN leave_requests.employee_id IS 'พนักงานผู้ขอลา (อ้างอิง employees)';
+COMMENT ON COLUMN leave_requests.leave_type_id IS 'ประเภทการลา (อ้างอิง leave_types)';
+COMMENT ON COLUMN leave_requests.start_date IS 'วันที่เริ่มลา';
+COMMENT ON COLUMN leave_requests.end_date IS 'วันที่สิ้นสุดการลา';
+COMMENT ON COLUMN leave_requests.reason IS 'เหตุผลในการลา';
+COMMENT ON COLUMN leave_requests.status IS 'สถานะคำขอ: pending/approved/rejected';
+COMMENT ON COLUMN leave_requests.approved_by IS 'ผู้อนุมัติคำขอลา (อ้างอิง employees)';
+COMMENT ON COLUMN leave_requests.requested_at IS 'วันเวลาที่ยื่นคำขอ';
+COMMENT ON COLUMN leave_requests.approved_at IS 'วันเวลาที่ได้รับการอนุมัติ';
+
+COMMENT ON TABLE attendance IS 'เวลาเข้า-ออกงานจริงของพนักงาน (ต่างจาก work_shifts ที่เป็นแค่ตารางเวรที่วางแผนไว้)';
+COMMENT ON COLUMN attendance.attendance_id IS 'รหัสบันทึกเข้างาน (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN attendance.employee_id IS 'พนักงาน (อ้างอิง employees)';
+COMMENT ON COLUMN attendance.shift_id IS 'เวรที่เกี่ยวข้อง (อ้างอิง work_shifts)';
+COMMENT ON COLUMN attendance.work_date IS 'วันที่ทำงาน';
+COMMENT ON COLUMN attendance.check_in_time IS 'เวลาที่สแกน/บันทึกเข้างาน';
+COMMENT ON COLUMN attendance.check_out_time IS 'เวลาที่สแกน/บันทึกออกงาน';
+COMMENT ON COLUMN attendance.status IS 'สถานะการมาทำงาน: present/late/absent/leave';
+
+COMMENT ON TABLE employee_contracts IS 'สัญญาจ้างงานของพนักงาน';
+COMMENT ON COLUMN employee_contracts.contract_id IS 'รหัสสัญญา (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN employee_contracts.employee_id IS 'พนักงานเจ้าของสัญญา (อ้างอิง employees)';
+COMMENT ON COLUMN employee_contracts.contract_type IS 'ประเภทการจ้าง เช่น ประจำ ชั่วคราว พาร์ทไทม์';
+COMMENT ON COLUMN employee_contracts.start_date IS 'วันที่เริ่มสัญญา';
+COMMENT ON COLUMN employee_contracts.end_date IS 'วันที่สิ้นสุดสัญญา (ว่าง = ไม่มีกำหนด)';
+COMMENT ON COLUMN employee_contracts.probation_end_date IS 'วันที่พ้นระยะทดลองงาน';
+COMMENT ON COLUMN employee_contracts.contract_file_url IS 'ลิงก์ไฟล์เอกสารสัญญา';
+COMMENT ON COLUMN employee_contracts.is_active IS 'สัญญานี้ยังมีผลอยู่หรือไม่';
+
+COMMENT ON TABLE payroll IS 'ประวัติการจ่ายเงินเดือนของพนักงานแต่ละรอบ';
+COMMENT ON COLUMN payroll.payroll_id IS 'รหัสรอบจ่ายเงินเดือน (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN payroll.employee_id IS 'พนักงานที่ได้รับเงินเดือนนี้ (อ้างอิง employees)';
+COMMENT ON COLUMN payroll.pay_period_start IS 'วันที่เริ่มต้นรอบจ่าย';
+COMMENT ON COLUMN payroll.pay_period_end IS 'วันที่สิ้นสุดรอบจ่าย';
+COMMENT ON COLUMN payroll.net_amount IS 'ยอดเงินสุทธิที่ได้รับหลังหักและรวมรายการต่าง ๆ แล้ว';
+COMMENT ON COLUMN payroll.paid_at IS 'วันเวลาที่จ่ายเงินจริง';
+COMMENT ON COLUMN payroll.status IS 'สถานะการจ่าย: pending/paid';
+
+COMMENT ON TABLE payroll_items IS 'รายการย่อยของแต่ละรอบเงินเดือน เช่น ค่าล่วงเวลา เบี้ยเวรดึก ประกันสังคม';
+COMMENT ON COLUMN payroll_items.payroll_item_id IS 'รหัสรายการ (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN payroll_items.payroll_id IS 'รอบเงินเดือนที่รายการนี้สังกัด (อ้างอิง payroll)';
+COMMENT ON COLUMN payroll_items.item_type IS 'ประเภทรายการ: earning (รายรับเพิ่ม) หรือ deduction (รายการหัก)';
+COMMENT ON COLUMN payroll_items.item_name IS 'ชื่อรายการ เช่น ค่าล่วงเวลา เบี้ยเวรดึก ประกันสังคม';
+COMMENT ON COLUMN payroll_items.amount IS 'จำนวนเงินของรายการนี้';
+
+COMMENT ON TABLE emergency_contacts IS 'ผู้ติดต่อฉุกเฉินของพนักงาน';
+COMMENT ON COLUMN emergency_contacts.contact_id IS 'รหัสผู้ติดต่อฉุกเฉิน (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN emergency_contacts.employee_id IS 'พนักงานเจ้าของข้อมูล (อ้างอิง employees)';
+COMMENT ON COLUMN emergency_contacts.contact_name IS 'ชื่อผู้ติดต่อฉุกเฉิน';
+COMMENT ON COLUMN emergency_contacts.relationship IS 'ความสัมพันธ์กับพนักงาน เช่น บิดา มารดา คู่สมรส';
+COMMENT ON COLUMN emergency_contacts.phone_number IS 'เบอร์โทรติดต่อฉุกเฉิน';
+
+COMMENT ON TABLE users IS 'บัญชีผู้ใช้สำหรับเข้าสู่ระบบ';
+COMMENT ON COLUMN users.user_id IS 'รหัสผู้ใช้ (สร้างอัตโนมัติแบบ uuid)';
+COMMENT ON COLUMN users.employee_id IS 'พนักงานเจ้าของบัญชีนี้ (อ้างอิง employees ไม่บังคับทุกคน)';
+COMMENT ON COLUMN users.username IS 'ชื่อผู้ใช้สำหรับเข้าสู่ระบบ';
+COMMENT ON COLUMN users.password_hash IS 'รหัสผ่านที่เข้ารหัสแล้ว (ห้ามเก็บ plain text)';
+COMMENT ON COLUMN users.role_id IS 'บทบาท/สิทธิ์การใช้งาน (อ้างอิง roles)';
+COMMENT ON COLUMN users.is_active IS 'บัญชียังใช้งานได้อยู่หรือไม่';
+COMMENT ON COLUMN users.last_login_at IS 'วันเวลาที่เข้าสู่ระบบล่าสุด';
+COMMENT ON COLUMN users.created_at IS 'วันเวลาที่สร้างบัญชี';
+
+COMMENT ON TABLE audit_logs IS 'บันทึกประวัติการแก้ไขข้อมูลสำคัญในระบบ เพื่อการตรวจสอบย้อนหลัง (compliance)';
+COMMENT ON COLUMN audit_logs.audit_id IS 'รหัสบันทึก (สร้างอัตโนมัติ)';
+COMMENT ON COLUMN audit_logs.user_id IS 'ผู้ใช้ที่ทำการแก้ไข (อ้างอิง users)';
+COMMENT ON COLUMN audit_logs.action IS 'ประเภทการกระทำ: INSERT/UPDATE/DELETE';
+COMMENT ON COLUMN audit_logs.table_name IS 'ชื่อตารางที่ถูกแก้ไข';
+COMMENT ON COLUMN audit_logs.record_id IS 'รหัสของแถวข้อมูลที่ถูกแก้ไข';
+COMMENT ON COLUMN audit_logs.old_values IS 'ค่าข้อมูลเดิมก่อนแก้ไข (รูปแบบ JSON)';
+COMMENT ON COLUMN audit_logs.new_values IS 'ค่าข้อมูลใหม่หลังแก้ไข (รูปแบบ JSON)';
+COMMENT ON COLUMN audit_logs.created_at IS 'วันเวลาที่เกิดการแก้ไข';
