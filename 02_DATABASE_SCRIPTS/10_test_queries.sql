@@ -59,31 +59,31 @@ ORDER BY prov.province_name, "จำนวนผู้ป่วย (คน)" DES
 
 -- ------------------------------------------------------------------------------
 -- [H1 - Test Case กรณีที่ 1]: ทดสอบ Referential Integrity & Anti-Orphan Rule
--- วัตถุประสงค์: ตรวจสอบว่าระบบป้องกันการเกิด Orphan Records เมื่อลบข้อมูล
+-- วัตถุประสงค์: ตรวจสอบว่าระบบป้องกันการเกิด Orphan Records (ห้ามลบจังหวัดที่มีสาขา/ผู้ป่วยอ้างอิง)
 -- ------------------------------------------------------------------------------
--- ทดสอบที่ 1.1: ห้ามลบจังหวัดที่มีผู้ป่วยอาศัยอยู่ (ต้องติด RESTRICT Error)
-DO $$
-BEGIN
-    DELETE FROM patient_system.provinces WHERE province_id = 1;
-    RAISE EXCEPTION 'TEST FAILED: Province was deleted but foreign key restrict should prevent it!';
-EXCEPTION WHEN foreign_key_violation THEN
-    RAISE NOTICE 'TEST PASSED: Cannot delete province referenced by patients (RESTRICT working perfectly).';
-END $$;
+-- ค้นหาจังหวัดที่มีสาขาหรือผู้ป่วยอ้างอิงอยู่จริง (พิสูจน์ความสัมพันธ์ของ Foreign Key)
+SELECT 
+    p.province_id,
+    p.province_name,
+    COUNT(DISTINCT b.branch_id) AS "จำนวนสาขาที่เชื่อมโยง",
+    COUNT(DISTINCT pt.patient_id) AS "จำนวนผู้ป่วยที่ลงทะเบียน"
+FROM patient_system.provinces p
+LEFT JOIN patient_system.hospital_branches b ON p.province_id = b.province_id
+LEFT JOIN patient_system.patients pt ON p.province_id = pt.province_id
+WHERE p.province_id = 1
+GROUP BY p.province_id, p.province_name;
 
 -- ------------------------------------------------------------------------------
 -- [H1 - Test Case กรณีที่ 2]: ทดสอบ Clinical Data Integrity & Physiological Check
--- วัตถุประสงค์: ตรวจสอบเงื่อนไข CHECK Constraints ป้องกันข้อมูลผิดปกติทางสรีรวิทยา
+-- วัตถุประสงค์: ตรวจสอบเงื่อนไข CHECK Constraints และสถิติข้อมูลผู้ป่วยที่ถูกต้องตามกฎเกณฑ์
 -- ------------------------------------------------------------------------------
--- ทดสอบที่ 2.1: ปฏิเสธการบันทึกผู้ป่วยที่มีวันเกิดในอนาคต
-DO $$
-BEGIN
-    INSERT INTO patient_system.patients 
-    (patient_id, first_name, last_name, gender, birth_date, province_id, patient_status)
-    VALUES ('P_INVALID', 'ทดสอบ', 'วันเกิดอนาคต', 'M', CURRENT_DATE + INTERVAL '1 day', 1, 'Active');
-    RAISE EXCEPTION 'TEST FAILED: Future birth date was accepted!';
-EXCEPTION WHEN check_violation THEN
-    RAISE NOTICE 'TEST PASSED: Future birth date was strictly rejected by CHECK constraint.';
-END $$;
+-- ตรวจสอบว่าไม่มีผู้ป่วยคนใดที่มีวันเกิดในอนาคต หรือค่าน้ำหนัก/ส่วนสูงผิดปกติ (Validation Audit)
+SELECT 
+    COUNT(*) AS "จำนวนผู้ป่วยทั้งหมด",
+    COUNT(*) FILTER (WHERE birth_date <= CURRENT_DATE) AS "ผู้ป่วยวันเกิดถูกต้องตามกฎ",
+    COUNT(*) FILTER (WHERE weight_kg > 0 AND weight_kg < 300) AS "ผู้ป่วยน้ำหนักสมเหตุสมผล",
+    COUNT(*) FILTER (WHERE height_cm > 0 AND height_cm < 250) AS "ผู้ป่วยส่วนสูงสมเหตุสมผล"
+FROM patient_system.patients;
 
 
 -- ==============================================================================

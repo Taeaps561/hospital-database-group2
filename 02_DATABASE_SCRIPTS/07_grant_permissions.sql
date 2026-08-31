@@ -8,8 +8,9 @@
 \connect hospital_enterprise_db
 
 -- 1. สิทธิ์สำหรับผู้ดูแลระบบ (Admin)
-GRANT ALL PRIVILEGES ON ALL SCHEMAS IN DATABASE hospital_enterprise_db TO hospital_admin_role;
+GRANT ALL PRIVILEGES ON SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO hospital_admin_role;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO hospital_admin_role;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO hospital_admin_role;
 
 -- 2. สิทธิ์สำหรับเจ้าหน้าที่ทะเบียนเวชระเบียน (H1 Registration Staff)
 GRANT USAGE ON SCHEMA patient_system TO registration_staff_role;
@@ -53,5 +54,5 @@ GRANT SELECT ON patient_system.patients, patient_system.patient_insurance_polici
 GRANT SELECT, INSERT, UPDATE ON billing_system.invoices TO billing_officer_role;
 
 -- 8. สิทธิ์สำหรับผู้ตรวจสอบ (Auditor Readonly Role)
-GRANT USAGE ON ALL SCHEMAS IN DATABASE hospital_enterprise_db TO auditor_readonly_role;
+GRANT USAGE ON SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO auditor_readonly_role;
 GRANT SELECT ON ALL TABLES IN SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO auditor_readonly_role;
