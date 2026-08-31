@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 30px;
+    background: #fffdf7;
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+    color: #1e293b;
+    width: 1960px;
+    height: 1120px;
+  }
+  .title-bar {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .title-bar h1 {
+    margin: 0;
+    font-size: 27px;
+    color: #991b1b;
+    font-weight: 700;
+  }
+  .title-bar p {
+    margin: 6px 0 0 0;
+    font-size: 14.5px;
+    color: #92400e;
+  }
+  .canvas {
+    position: relative;
+    width: 1900px;
+    height: 1010px;
+    background: #ffffff;
+    border: 1px solid #fed7aa;
+    border-radius: 14px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.03);
+  }
+  .card {
+    position: absolute;
+    width: 440px;
+    background: #ffffff;
+    border: 2px solid #ef4444;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
+    overflow: hidden;
+    z-index: 10;
+  }
+  .card-header {
+    background: #ef4444;
+    color: white;
+    padding: 9px 14px;
+    font-size: 14.5px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-badge {
+    background: #991b1b;
+    color: white;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .card-body {
+    padding: 12px 15px;
+    font-size: 12.5px;
+    line-height: 1.65;
+    background: #fffafa;
+  }
+  .pk {
+    color: #d97706;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .flaw {
+    color: #b91c1c;
+    font-weight: 600;
+  }
+  .normal {
+    color: #475569;
+  }
+  .tag {
+    position: absolute;
+    background: #fee2e2;
+    border: 1.5px solid #ef4444;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: #991b1b;
+    font-weight: 700;
+    z-index: 20;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+  svg.wires {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <h1>ER Diagram ฉบับรวมก่อนปรับปรุง (Unadjusted Hospital ER Diagram - BEFORE)</h1>
+    <p>สภาพก่อนรวมระบบ: แต่ละแผนกพัฒนาฐานข้อมูลแบบ Data Silos ขาด Foreign Key เชื่อมโยง ข้อมูลซ้ำซ้อน และโครงสร้างขัดแย้ง 1NF/2NF</p>
+  </div>
+
+  <div class="canvas">
+    <!-- SVG Dashed Wires -->
+    <svg class="wires">
+      <!-- Line 1: H1 to H2 (Horizontal in Gap 1-2) -->
+      <line x1="500" y1="145" x2="720" y2="145" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <!-- Line 2: H2 to H3 (Horizontal in Gap 2-3) -->
+      <line x1="1160" y1="145" x2="1380" y2="145" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <!-- Line 3: H1 to H4 (Vertical in Gap R1-R2) -->
+      <line x1="280" y1="245" x2="280" y2="410" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <!-- Line 4: H4 to H5 (Horizontal in Gap 1-2) -->
+      <line x1="500" y1="515" x2="720" y2="515" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <!-- Line 5: H5 to H6 (Horizontal in Gap 2-3) -->
+      <line x1="1160" y1="515" x2="1380" y2="515" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <!-- Line 6: H5 to H7 (Vertical in Gap R2-R3) -->
+      <line x1="940" y1="615" x2="940" y2="770" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4"/>
+    </svg>
+
+    <!-- Problem Tags Centered Exactly in Wide Gaps -->
+    <div class="tag" style="top: 145px; left: 610px;">[!] Data Type ขัดแย้ง (String vs Int)</div>
+    <div class="tag" style="top: 145px; left: 1270px;">[!] ไร้ FK เชื่อมระหว่าง OPD กับการเงิน</div>
+    <div class="tag" style="top: 327px; left: 280px;">[!] ขาด FK Constraint / เสี่ยง Orphan Data</div>
+    <div class="tag" style="top: 515px; left: 610px;">[!] ยาหลายตัวในบิลเดียว ไร้ตารางกลาง (1NF)</div>
+    <div class="tag" style="top: 515px; left: 1270px;">[!] ข้อมูลคนไข้ซ้ำซ้อน เสี่ยง Update Anomaly</div>
+    <div class="tag" style="top: 692px; left: 940px;">[!] แพทย์บันทึกเป็น Free-text ไร้ FK อ้างอิง H7</div>
+
+    <!-- ROW 1 -->
+    <div class="card" style="top: 40px; left: 60px;">
+      <div class="card-header">
+        <span>H1: patients (ระบบผู้ป่วย)</span>
+        <span class="card-badge">1NF / 2NF Violation</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>patient_id</b> (VARCHAR)</div>
+        <div class="normal">first_name, last_name</div>
+        <div class="flaw">• phone, email (เก็บรวมในฟิลด์เดียว ขัด 1NF)</div>
+        <div class="flaw">• insurance_name, policy_no (เก็บรวมในตาราง ขัด 2NF)</div>
+        <div class="normal">blood_group, weight, height</div>
+      </div>
+    </div>
+
+    <div class="card" style="top: 40px; left: 720px;">
+      <div class="card-header">
+        <span>H2: appointments (ระบบนัดหมาย)</span>
+        <span class="card-badge">Redundant PII</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>appointment_id</b> (INT)</div>
+        <div class="flaw">• patient_id (INTEGER - ไม่ตรงกับ VARCHAR ของ H1)</div>
+        <div class="flaw">• patient_name (เก็บชื่อคนไข้ซ้ำซ้อน เสี่ยงข้อมูลไม่ตรงกัน)</div>
+        <div class="flaw">• patient_phone (เก็บเบอร์โทรศัพท์ซ้ำซ้อน)</div>
+        <div class="normal">appointment_date, appointment_time</div>
+      </div>
+    </div>
+
+    <div class="card" style="top: 40px; left: 1380px;">
+      <div class="card-header">
+        <span>H3: billing (ระบบการเงิน)</span>
+        <span class="card-badge">No Foreign Key</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>bill_id</b> (SERIAL)</div>
+        <div class="flaw">• patient_name (พิมพ์ชื่อคนไข้เอง ไร้ FK อ้างอิง H1)</div>
+        <div class="flaw">• insurance_company (ข้อความ Free-text สะกดเพี้ยน)</div>
+        <div class="normal">total_amount, payment_status</div>
+        <div class="flaw">• amount_paid (ไม่รองรับการแบ่งจ่ายประกัน Split Bill)</div>
+      </div>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="card" style="top: 410px; left: 60px;">
+      <div class="card-header">
+        <span>H4: prescriptions (ระบบยา)</span>
+        <span class="card-badge">Unresolved M:N</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>rx_id</b> (VARCHAR)</div>
+        <div class="flaw">• patient_id (ไม่มี Foreign Key ผูกกับ H1)</div>
+        <div class="normal">doctor_id</div>
+        <div class="flaw">• medication_list (เก็บยาคั่นด้วยจุลภาค Comma-separated)</div>
+        <div class="flaw">• ความสัมพันธ์ M:N ระหว่างใบสั่งยาและยายังไม่ถูกแยกตาราง</div>
+      </div>
+    </div>
+
+    <div class="card" style="top: 410px; left: 720px;">
+      <div class="card-header">
+        <span>H5: lab_requests (ระบบแล็บ)</span>
+        <span class="card-badge">Missing Doctor FK</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>lab_no</b> (VARCHAR)</div>
+        <div class="flaw">• patient_id (ไม่มี Foreign Key ผูกกับ H1)</div>
+        <div class="flaw">• doctor_name (บันทึกชื่อแพทย์เป็นตัวอักษร ไม่ผูก FK กับ H7)</div>
+        <div class="normal">test_type, result_value</div>
+        <div class="flaw">• ไม่สามารถตรวจสอบย้อนกลับ (Traceability) หาผู้ตรวจได้</div>
+      </div>
+    </div>
+
+    <div class="card" style="top: 410px; left: 1380px;">
+      <div class="card-header">
+        <span>H6: admissions (ระบบผู้ป่วยใน)</span>
+        <span class="card-badge">Lost History (H03)</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>admission_id</b> (VARCHAR)</div>
+        <div class="normal">patient_id, bed_id</div>
+        <div class="flaw">• patient_name, contact_phone (เก็บซ้ำกับ H1)</div>
+        <div class="flaw">• doctors (มีแพทย์ดูแลร่วมหลายคนแต่มีฟิลด์เดียว ขัด H01)</div>
+        <div class="flaw">• ย้ายเตียงแล้วเขียนทับเตียงเดิม (สูญเสียประวัติ ขัด H03)</div>
+      </div>
+    </div>
+
+    <!-- ROW 3 -->
+    <div class="card" style="top: 770px; left: 720px;">
+      <div class="card-header">
+        <span>H7: doctors (ระบบบุคลากร)</span>
+        <span class="card-badge">2NF / H05 Violation</span>
+      </div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>doctor_id</b> (VARCHAR)</div>
+        <div class="flaw">• doctor_name, department_name (ไม่มีตารางแผนกแยก ขัด 3NF)</div>
+        <div class="flaw">• ไม่บันทึกประวัติการย้ายแผนกของแพทย์ (ขัด Change Card H05)</div>
+        <div class="normal">specialty, email, salary_thb</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

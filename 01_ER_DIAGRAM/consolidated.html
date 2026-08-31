@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 25px 30px;
+    background: #f8fafc;
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+    color: #0f172a;
+    width: 2220px;
+    height: 1320px;
+  }
+  .title-bar {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .title-bar h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #0f172a;
+    font-weight: 700;
+  }
+  .title-bar p {
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    color: #475569;
+  }
+  .canvas {
+    position: relative;
+    width: 2160px;
+    height: 1200px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+  }
+  .card {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+    z-index: 10;
+  }
+  .card-header {
+    color: white;
+    padding: 7px 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .card-body {
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.55;
+    background: #ffffff;
+  }
+  .pk {
+    color: #d97706;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-right: 4px;
+  }
+  .fk {
+    color: #2563eb;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-right: 4px;
+  }
+  .attr {
+    color: #475569;
+  }
+
+  /* Color themes */
+  .blue { border: 1.5px solid #0284c7; }
+  .blue .card-header { background: #0284c7; }
+
+  .indigo { border: 1.5px solid #4f46e5; }
+  .indigo .card-header { background: #4f46e5; }
+
+  .amber { border: 1.5px solid #d97706; }
+  .amber .card-header { background: #d97706; }
+
+  .green { border: 1.5px solid #16a34a; }
+  .green .card-header { background: #16a34a; }
+
+  .teal { border: 1.5px solid #0d9488; }
+  .teal .card-header { background: #0d9488; }
+
+  .rose { border: 1.5px solid #e11d48; }
+  .rose .card-header { background: #e11d48; }
+
+  svg.connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+  }
+  .conn-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-assoc {
+    background: #dcfce7;
+    color: #15803d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .badge-h03 {
+    background: #ffe4e6;
+    color: #be123c;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .badge-h02 {
+    background: #fef3c7;
+    color: #b45309;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .legend-bar {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+    padding: 6px 25px;
+    font-size: 12px;
+    color: #334155;
+    display: flex;
+    gap: 20px;
+    z-index: 20;
+  }
+</style>
+</head>
+<body>
+  <div class="title-bar">
+    <h1>ER Diagram ฉบับสมบูรณ์ (Enterprise Hospital HIS v2 ER Diagram - 3NF)</h1>
+    <p>บูรณาการครบ 7 ระบบย่อย (H1-H7) | Single Source of Truth ด้วย patient_id | ตารางกลาง Associative Entities แก้ M:N | เส้นความสัมพันธ์เดินตามช่องว่างถนน 100%</p>
+  </div>
+
+  <div class="canvas">
+    <svg class="connections">
+      <defs>
+        <!-- Arrowhead markers -->
+        <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7" />
+        </marker>
+        <marker id="arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#4f46e5" />
+        </marker>
+        <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706" />
+        </marker>
+        <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#16a34a" />
+        </marker>
+        <marker id="arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#0d9488" />
+        </marker>
+        <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48" />
+        </marker>
+      </defs>
+
+      <!-- ============================================================== -->
+      <!-- ROW 1 HORIZONTAL CONNECTIONS (H1 Core) -->
+      <!-- ============================================================== -->
+      <!-- 1. provinces -> branches -->
+      <path d="M 230 75 L 290 75" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="250" y="67" class="conn-label" fill="#0284c7">1:N</text>
+
+      <!-- 2. branches -> patients -->
+      <path d="M 560 75 L 620 75" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="580" y="67" class="conn-label" fill="#0284c7">1:N</text>
+
+      <!-- 3. patients -> contacts -->
+      <path d="M 1030 75 L 1090 75" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="1050" y="67" class="conn-label" fill="#0284c7">1:N</text>
+
+      <!-- 4. patients -> policies -->
+      <path d="M 1420 75 L 1480 75" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="1440" y="67" class="conn-label" fill="#0284c7">1:N</text>
+
+      <!-- 5. providers -> policies -->
+      <path d="M 1860 75 L 1820 75" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="1832" y="67" class="conn-label" fill="#0284c7">1:N</text>
+
+      <!-- ============================================================== -->
+      <!-- ROW 2 HORIZONTAL CONNECTIONS (H7 Staff & H2 OPD) -->
+      <!-- ============================================================== -->
+      <!-- 6. departments -> doctors -->
+      <path d="M 260 365 L 320 365" stroke="#4f46e5" stroke-width="2" fill="none" marker-end="url(#arrow-indigo)"/>
+      <text x="280" y="357" class="conn-label" fill="#4f46e5">1:N</text>
+
+      <!-- 7. doctors -> appointments -->
+      <path d="M 620 365 L 680 365" stroke="#4f46e5" stroke-width="2" fill="none" marker-end="url(#arrow-indigo)"/>
+      <text x="640" y="357" class="conn-label" fill="#4f46e5">1:N</text>
+
+      <!-- 8. appointments -> clinical_records -->
+      <path d="M 1030 365 L 1090 365" stroke="#d97706" stroke-width="2" fill="none" marker-end="url(#arrow-amber)"/>
+      <text x="1050" y="357" class="conn-label" fill="#d97706">1:1</text>
+
+      <!-- 9. diagnoses -> clinical_records -->
+      <path d="M 1520 365 L 1460 365" stroke="#d97706" stroke-width="2" fill="none" marker-end="url(#arrow-amber)"/>
+      <text x="1480" y="357" class="conn-label" fill="#d97706">1:N</text>
+
+      <!-- ============================================================== -->
+      <!-- ROW 3 HORIZONTAL CONNECTIONS (H5 Lab & H4 Pharmacy) -->
+      <!-- ============================================================== -->
+      <!-- 10. lab_orders -> lab_results -->
+      <path d="M 300 665 L 360 665" stroke="#0d9488" stroke-width="2" fill="none" marker-end="url(#arrow-teal)"/>
+      <text x="320" y="657" class="conn-label" fill="#0d9488">1:N</text>
+
+      <!-- 11. prescriptions -> prescription_items -->
+      <path d="M 1030 665 L 1090 665" stroke="#16a34a" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+      <text x="1050" y="657" class="conn-label" fill="#16a34a">1:N</text>
+
+      <!-- 12. medications -> prescription_items -->
+      <path d="M 1520 665 L 1460 665" stroke="#16a34a" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+      <text x="1480" y="657" class="conn-label" fill="#16a34a">1:N</text>
+
+      <!-- ============================================================== -->
+      <!-- ROW 4 HORIZONTAL CONNECTIONS (H6 Wards, Admissions, Transfers) -->
+      <!-- ============================================================== -->
+      <!-- 13. wards -> beds -->
+      <path d="M 260 975 L 320 975" stroke="#e11d48" stroke-width="2" fill="none" marker-end="url(#arrow-rose)"/>
+      <text x="280" y="967" class="conn-label" fill="#e11d48">1:N</text>
+
+      <!-- 14. beds -> admissions -->
+      <path d="M 550 975 L 610 975" stroke="#e11d48" stroke-width="2" fill="none" marker-end="url(#arrow-rose)"/>
+      <text x="570" y="967" class="conn-label" fill="#e11d48">1:N</text>
+
+      <!-- 15. admissions -> bed_transfers -->
+      <path d="M 1030 975 L 1090 975" stroke="#e11d48" stroke-width="2" fill="none" marker-end="url(#arrow-rose)"/>
+      <text x="1045" y="967" class="conn-label" fill="#e11d48">1:N (H03)</text>
+
+      <!-- ============================================================== -->
+      <!-- DEDICATED HIGHWAYS (ONLY THROUGH STREETS BETWEEN BOXES) -->
+      <!-- ============================================================== -->
+      
+      <!-- HIGHWAY 1: patients -> appointments (Straight Vertical in Column 3) -->
+      <path d="M 825 185 L 825 280" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="833" y="235" class="conn-label" fill="#0284c7">1:N</text>
+
+      <!-- HIGHWAY 2: patients -> clinical_records (Via Street Y=220px between Row 1 & 2) -->
+      <path d="M 950 185 L 950 220 L 1275 220 L 1275 280" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="1100" y="212" class="conn-label" fill="#0284c7">1:N (patient_id)</text>
+
+      <!-- HIGHWAY 3: branches -> departments (Via Street Y=250px between Row 1 & 2) -->
+      <path d="M 425 185 L 425 250 L 150 250 L 150 280" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="280" y="242" class="conn-label" fill="#0284c7">1:N (branch_id)</text>
+
+      <!-- HIGHWAY 4: departments -> wards (Leftmost gutter X=25px) -->
+      <path d="M 50 365 L 25 365 L 25 975 L 50 975" stroke="#e11d48" stroke-width="2" fill="none" marker-end="url(#arrow-rose)"/>
+      <text x="32" y="660" class="conn-label" fill="#e11d48">1:N (dept_id)</text>
+
+      <!-- HIGHWAY 5: doctors -> lab_orders (Via Street Y=490px between Row 2 & 3) -->
+      <path d="M 470 450 L 470 490 L 175 490 L 175 590" stroke="#4f46e5" stroke-width="2" fill="none" marker-end="url(#arrow-indigo)"/>
+      <text x="290" y="482" class="conn-label" fill="#4f46e5">1:N (doctor_id)</text>
+
+      <!-- HIGHWAY 6: doctors -> prescriptions (Via Street Y=525px between Row 2 & 3) -->
+      <path d="M 520 450 L 520 525 L 770 525 L 770 590" stroke="#4f46e5" stroke-width="2" fill="none" marker-end="url(#arrow-indigo)"/>
+      <text x="615" y="517" class="conn-label" fill="#4f46e5">1:N (doctor_id)</text>
+
+      <!-- HIGHWAY 7: patients -> prescriptions (Vertical Avenue in Gutter 2 X=650px) -->
+      <path d="M 700 185 L 700 215 L 650 215 L 650 555 L 855 555 L 855 590" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="658" y="547" class="conn-label" fill="#0284c7">1:N (patient_id)</text>
+
+      <!-- HIGHWAY 8: policies -> invoices (Rightmost gutter X=2120px) -->
+      <path d="M 1650 185 L 1650 230 L 2110 230 L 2110 975 L 1870 975" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="1880" y="222" class="conn-label" fill="#0284c7">1:N (policy_id - H02)</text>
+
+      <!-- HIGHWAY 9: patients -> admissions (Gutter 2 X=650px down to Row 4) -->
+      <path d="M 650 555 L 650 840 L 780 840 L 780 895" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+      <text x="658" y="830" class="conn-label" fill="#0284c7">1:N (patient_id)</text>
+    </svg>
+
+    <!-- ============================================================== -->
+    <!-- ROW 1 (Y=20px): PATIENT SYSTEM (H1) & GEOGRAPHY -->
+    <!-- ============================================================== -->
+    <div class="card blue" style="top: 20px; left: 50px; width: 180px;">
+      <div class="card-header">H1: provinces</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>province_id</b></div>
+        <div class="attr">province_name</div>
+      </div>
+    </div>
+
+    <div class="card blue" style="top: 20px; left: 290px; width: 270px;">
+      <div class="card-header">H1: hospital_branches</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>branch_id</b></div>
+        <div><span class="fk">[FK]</span> province_id</div>
+        <div class="attr">branch_name</div>
+      </div>
+    </div>
+
+    <div class="card blue" style="top: 20px; left: 620px; width: 410px;">
+      <div class="card-header">H1: patients (Single Source of Truth)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>patient_id</b> (VARCHAR)</div>
+        <div><span class="fk">[FK]</span> province_id, registered_branch_id</div>
+        <div class="attr">title_prefix, first_name, last_name</div>
+        <div class="attr">gender, birth_date, blood_group</div>
+        <div class="attr">weight_kg, height_cm, patient_status</div>
+      </div>
+    </div>
+
+    <div class="card blue" style="top: 20px; left: 1090px; width: 330px;">
+      <div class="card-header">H1: patient_contacts (3NF)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>contact_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id</div>
+        <div class="attr">contact_type ('Phone', 'Email')</div>
+        <div class="attr">contact_value, is_primary</div>
+      </div>
+    </div>
+
+    <div class="card blue" style="top: 20px; left: 1480px; width: 340px;">
+      <div class="card-header">H1: patient_insurance_policies</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>policy_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, provider_id</div>
+        <div class="attr">policy_number, coverage_limit</div>
+        <div class="attr">expiry_date</div>
+      </div>
+    </div>
+
+    <div class="card blue" style="top: 20px; left: 1860px; width: 210px;">
+      <div class="card-header">H1: providers</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>provider_id</b></div>
+        <div class="attr">provider_name</div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- ROW 2 (Y=280px): STAFF (H7) & OPD CLINICAL CARE (H2) -->
+    <!-- ============================================================== -->
+    <div class="card indigo" style="top: 280px; left: 50px; width: 210px;">
+      <div class="card-header">H7: departments</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>department_id</b></div>
+        <div><span class="fk">[FK]</span> branch_id</div>
+        <div class="attr">department_name</div>
+      </div>
+    </div>
+
+    <div class="card indigo" style="top: 280px; left: 320px; width: 300px;">
+      <div class="card-header">H7: doctors (ระบบแพทย์)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>doctor_id</b></div>
+        <div><span class="fk">[FK]</span> department_id</div>
+        <div class="attr">doctor_name, specialty, email</div>
+        <div class="attr">salary_thb</div>
+      </div>
+    </div>
+
+    <div class="card amber" style="top: 280px; left: 680px; width: 350px;">
+      <div class="card-header">H2: appointments (ระบบนัดหมาย)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>appointment_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, doctor_id, branch_id</div>
+        <div class="attr">appointment_date, appointment_time</div>
+        <div class="attr">appointment_status, appointment_source</div>
+      </div>
+    </div>
+
+    <div class="card amber" style="top: 280px; left: 1090px; width: 370px;">
+      <div class="card-header">H2: clinical_records (บันทึกตรวจ)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>record_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, doctor_id, diagnosis_id</div>
+        <div class="attr">record_date, care_setting ('OPD')</div>
+        <div class="attr">systolic_bp, diastolic_bp, temp_c</div>
+        <div class="attr">blood_glucose_mg_dl</div>
+      </div>
+    </div>
+
+    <div class="card amber" style="top: 280px; left: 1520px; width: 280px;">
+      <div class="card-header">H2: diagnoses (รหัสโรค)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>diagnosis_id</b></div>
+        <div class="attr">icd_code (ICD-10 Standard)</div>
+        <div class="attr">diagnosis_name</div>
+        <div class="attr">diagnosis_category</div>
+      </div>
+    </div>
+
+    <div class="card blue" style="top: 280px; left: 1860px; width: 210px;">
+      <div class="card-header">H1: users_security</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>user_id</b></div>
+        <div><span class="fk">[FK]</span> role_id, patient_id</div>
+        <div class="attr">username, status</div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- ROW 3 (Y=590px): LAB (H5) & PHARMACY (H4) -->
+    <!-- ============================================================== -->
+    <div class="card teal" style="top: 590px; left: 50px; width: 250px;">
+      <div class="card-header">H5: lab_orders (คำสั่งแล็บ)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>order_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, doctor_id</div>
+        <div class="attr">order_date, order_status</div>
+      </div>
+    </div>
+
+    <div class="card teal" style="top: 590px; left: 360px; width: 260px;">
+      <div class="card-header">H5: lab_results (ผลแล็บ)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>result_id</b> (SERIAL)</div>
+        <div><span class="fk">[FK]</span> order_id</div>
+        <div class="attr">test_name, result_value</div>
+        <div class="attr">reference_range, is_abnormal</div>
+      </div>
+    </div>
+
+    <div class="card green" style="top: 590px; left: 680px; width: 350px;">
+      <div class="card-header">H4: prescriptions (ใบสั่งยา)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>prescription_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, doctor_id</div>
+        <div class="attr">prescription_date, dispense_status</div>
+      </div>
+    </div>
+
+    <div class="card green" style="top: 590px; left: 1090px; width: 370px;">
+      <div class="card-header">H4: prescription_items (Associative M:N)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>item_id</b> (SERIAL)</div>
+        <div><span class="fk">[FK]</span> prescription_id, medication_id</div>
+        <div class="attr">quantity (CHECK > 0), instructions</div>
+        <div class="badge-assoc">✓ ตารางกลางแปลง M:N ตาม 3NF</div>
+      </div>
+    </div>
+
+    <div class="card green" style="top: 590px; left: 1520px; width: 280px;">
+      <div class="card-header">H4: medications (คลังยา)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>medication_id</b></div>
+        <div class="attr">medication_name, standard_dosage</div>
+        <div class="attr">unit_price_thb, stock_quantity</div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- ROW 4 (Y=895px): IPD WARDS & ADMISSIONS (H6) & BILLING (H3) -->
+    <!-- ============================================================== -->
+    <div class="card rose" style="top: 895px; left: 50px; width: 210px;">
+      <div class="card-header">H6: wards (หอผู้ป่วย)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>ward_id</b></div>
+        <div><span class="fk">[FK]</span> department_id</div>
+        <div class="attr">ward_name, ward_type, bed_capacity</div>
+      </div>
+    </div>
+
+    <div class="card rose" style="top: 895px; left: 320px; width: 230px;">
+      <div class="card-header">H6: beds (เตียงผู้ป่วย)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>bed_id</b></div>
+        <div><span class="fk">[FK]</span> ward_id</div>
+        <div class="attr">room_number, bed_type, bed_status</div>
+      </div>
+    </div>
+
+    <div class="card rose" style="top: 895px; left: 610px; width: 420px;">
+      <div class="card-header">H6: admissions (การรับผู้ป่วยใน)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>admission_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, attending_doctor_id, bed_id</div>
+        <div class="attr">admission_date, discharge_date</div>
+        <div class="attr">admission_type, discharge_status, los_days</div>
+      </div>
+    </div>
+
+    <div class="card rose" style="top: 895px; left: 1090px; width: 370px;">
+      <div class="card-header">H6: bed_transfers (ประวัติย้ายเตียง)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>transfer_id</b> (SERIAL)</div>
+        <div><span class="fk">[FK]</span> admission_id, from_bed_id, to_bed_id</div>
+        <div class="attr">transfer_timestamp, transfer_reason</div>
+        <div class="badge-h03">✓ ตารางกลางบันทึกประวัติ (Change Card H03)</div>
+      </div>
+    </div>
+
+    <div class="card amber" style="top: 895px; left: 1520px; width: 350px;">
+      <div class="card-header">H3: invoices (การเงิน & แบ่งจ่าย H02)</div>
+      <div class="card-body">
+        <div><span class="pk">[PK]</span> <b>invoice_id</b></div>
+        <div><span class="fk">[FK]</span> patient_id, policy_id</div>
+        <div class="attr">total_amount_thb, payment_status</div>
+        <div class="badge-h02">✓ insurance_paid_thb, patient_paid_thb (Split Bill)</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-bar">
+      <div><span class="pk">[PK]</span> Primary Key</div>
+      <div><span class="fk">[FK]</span> Foreign Key</div>
+      <div><b style="color:#0284c7;">━━►</b> เส้นความสัมพันธ์ 1:N และ 1:1 (เดินตามช่องว่างถนนระหว่างตาราง สะอาดตา ไม่ทับกล่อง 100%)</div>
+      <div><b style="color:#16a34a;">[Associative]</b> ตารางกลางแปลง M:N ตามมาตรฐาน 3NF</div>
+    </div>
+
+  </div>
+</body>
+</html>
