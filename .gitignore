@@ -1,0 +1,18 @@
+# Database data and backup files
+*.log
+*.tmp
+*.bak
+*.csv
+pgsql/
+pgsql_data/
+pgsql_portable/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
