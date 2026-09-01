@@ -7,7 +7,7 @@
 
 \connect hospital_enterprise_db
 
--- 1. Schema โมดูล H1: ระบบทะเบียนผู้ป่วยและประชากรศาสตร์ (ผู้รับผิดชอบ: นายอภิสิทธิ์ ศรีพัฒน์ 6811011662010)
+-- 1. Schema โมดูล H1: ระบบทะเบียนผู้ป่วยและประชากรศาสตร์ (ผู้รับผิดชอบ: สมาชิก H1)
 CREATE SCHEMA IF NOT EXISTS patient_system;
 COMMENT ON SCHEMA patient_system IS 'Module H1: Patient Registration, Demographics, and Insurance Master System';
 

@@ -9,7 +9,7 @@
 
 ห้ามทำการ Push โค้ดตรงเข้าสู่ Branch `main` โดยเด็ดขาด ให้แตก Branch ย่อยตามระบบย่อยที่ตนเองรับผิดชอบ:
 
-* **H1 (ทะเบียนผู้ป่วย)**: `feature/H1-patient-registration` *(นายอภิสิทธิ์)*
+* **H1 (ทะเบียนผู้ป่วย)**: `feature/H1-patient-registration` *(สมาชิก H1)*
 * **H2 (นัดหมาย/OPD)**: `feature/H2-appointments-opd`
 * **H3 (การเงิน)**: `feature/H3-billing-finance`
 * **H4 (เภสัชกรรม)**: `feature/H4-pharmacy`
@@ -57,7 +57,7 @@ git push origin feature/H2-appointments-opd
 2. กดปุ่ม **"Compare & pull request"**
 3. ตั้งชื่อ PR: `[H2] Integrate Appointments and OPD Module`
 4. ระบุรายละเอียดสิ่งที่เพิ่มลงในกล่องข้อความ และกดส่ง Pull Request
-5. Maintainer (H1: นายอภิสิทธิ์) จะทำการตรวจทานความถูกต้อง (Review) ก่อน Merge เข้าสู่ `main`
+5. Maintainer (สมาชิก H1) จะทำการตรวจทานความถูกต้อง (Review) ก่อน Merge เข้าสู่ `main`
 
 ---
 

@@ -1,7 +1,6 @@
 -- ==============================================================================
 -- งานสัปดาห์ที่ 11: การเรียกใช้และวิเคราะห์ข้อมูลด้วย PostgreSQL
--- ชื่อ-นามสกุล: นายอภิสิทธิ์ ศรีพัฒน์
--- รหัสนักศึกษา: 6811011662010
+-- ผู้รับผิดชอบ: สมาชิก H1
 -- ระบบย่อย: ระบบลงทะเบียนและประวัติผู้ป่วย (Patient Registration & Demographics - Module H1)
 -- Table ที่รับผิดชอบ: patient_system.patients, patient_system.patient_contacts, 
 --                     patient_system.provinces, patient_system.hospital_branches, 
