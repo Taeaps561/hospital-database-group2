@@ -9,7 +9,7 @@
 
 | รหัสระบบ | ชื่อระบบย่อย | ข้อมูลหลักของระบบ | ผู้รับผิดชอบ | สถานะการพัฒนา |
 | :---: | :--- | :--- | :---: | :---: |
-| **H1** | **ทะเบียนผู้ป่วย (Patient Registration)** | ผู้ป่วย, ที่อยู่/ช่องทางติดต่อ, สิทธิการรักษา | สมาชิก H1 | ✅ เสร็จสมบูรณ์ (Base) |
+| **H1** | **ทะเบียนผู้ป่วย (Patient Registration)** | ผู้ป่วย, ที่อยู่/ช่องทางติดต่อ, สิทธิการรักษา | สมาชิก H1 | ✅ อัปเดตงานแล้ว |
 | **H2** | **นัดหมาย/OPD (Appointments & OPD)** | นัดหมาย, การเข้ารับบริการ, การตรวจรักษา | สมาชิก H2 | 🔄 Ready for Integration |
 | **H3** | **การเงิน (Billing & Accounts)** | ใบแจ้งหนี้, รายการค่าใช้จ่าย, การชำระเงิน | สมาชิก H3 | ✅ อัปเดตงานแล้ว |
 | **H4** | **เภสัชกรรม (Pharmacy & Medications)** | ยา, ใบสั่งยา, การจ่ายยา, คลังยา | สมาชิก H4 | 🔄 Ready for Integration |
@@ -39,22 +39,30 @@ hospital-database-group2/
 ├── .gitignore                          <-- การตั้งค่าไฟล์ที่ไม่นำเข้า Git
 │
 ├── 01_ER_DIAGRAM/                      <-- งานที่ 3: แผนภาพ ER Diagram กลาง
-│   ├── H1_patient_er.png               <-- 1. ER Diagram ระบบย่อย H1 (ทะเบียนผู้ป่วย)
-│   ├── hospital_er_unadjusted.png      <-- 2. ER Diagram รวมก่อนปรับปรุง (ชี้จุดบกพร่อง/ซ้ำซ้อน)
-│   ├── hospital_er_consolidated_3nf.png<-- 3. ER Diagram ฉบับสมบูรณ์ (3NF + Associative Entities)
-│   └── ER_CONSOLIDATION_REPORT.pdf     <-- 4. เล่มรายงานอธิบายสิ่งที่แก้ไขจากการรวมระบบ
+│   ├── hospital_er_unadjusted.png      <-- 1. ER Diagram รวมก่อนปรับปรุง (ชี้จุดบกพร่อง/ซ้ำซ้อน)
+│   ├── hospital_er_consolidated_3nf.png<-- 2. ER Diagram ฉบับสมบูรณ์ (3NF + Associative Entities)
+│   ├── ER_CONSOLIDATION_REPORT.pdf     <-- 3. เล่มรายงานอธิบายสิ่งที่แก้ไขจากการรวมระบบ
+│   └── README.md                       <-- 4. คำอธิบายโครงสร้างและรายการเอกสารแผนภาพ
 │
-└── 02_DATABASE_SCRIPTS/                <-- งานที่ 4: รวม SQL เป็นฐานข้อมูลเดียว (10 สคริปต์)
-    ├── 01_create_database.sql          <-- 1. สร้าง Database กลาง (hospital_enterprise_db)
-    ├── 02_create_schema.sql            <-- 2. สร้าง Schema แยกตามระบบย่อย
-    ├── 03_create_tables.sql            <-- 3. รวมคำสั่ง CREATE TABLE พร้อม PK ของทุกระบบ
-    ├── 04_create_constraints.sql       <-- 4. รวม Foreign Keys เชื่อมข้ามระบบ และ Constraints
-    ├── 05_create_indexes.sql           <-- 5. สร้าง Index เพื่อเพิ่มความเร็วในการสืบค้น
-    ├── 06_create_roles.sql             <-- 6. สร้าง Database Roles ตามบทบาทหน้าที่
-    ├── 07_grant_permissions.sql        <-- 7. กำหนดสิทธิ์ตามหลัก Least Privilege
-    ├── 08_insert_sample_data.sql       <-- 8. ข้อมูลตัวอย่างทดสอบ 3 กระบวนการกลาง
-    ├── 09_views_reports.sql            <-- 9. Views สำหรับรายงาน OPD, IPD และ Traceability
-    └── 10_test_queries.sql             <-- 10. Query ทดสอบระบบ และ Test Cases
+├── 02_DATABASE_SCRIPTS/                <-- งานที่ 4: รวม SQL เป็นฐานข้อมูลเดียว (10 สคริปต์)
+│   ├── 01_create_database.sql          <-- 1. สร้าง Database กลาง (hospital_enterprise_db)
+│   ├── 02_create_schema.sql            <-- 2. สร้าง Schema แยกตามระบบย่อย
+│   ├── 03_create_tables.sql            <-- 3. รวมคำสั่ง CREATE TABLE พร้อม PK ของทุกระบบ
+│   ├── 04_create_constraints.sql       <-- 4. รวม Foreign Keys เชื่อมข้ามระบบ และ Constraints
+│   ├── 05_create_indexes.sql           <-- 5. สร้าง Index เพื่อเพิ่มความเร็วในการสืบค้น
+│   ├── 06_create_roles.sql             <-- 6. สร้าง Database Roles ตามบทบาทหน้าที่
+│   ├── 07_grant_permissions.sql        <-- 7. กำหนดสิทธิ์ตามหลัก Least Privilege
+│   ├── 08_insert_sample_data.sql       <-- 8. ข้อมูลตัวอย่างทดสอบ 3 กระบวนการกลาง
+│   ├── 09_views_reports.sql            <-- 9. Views สำหรับรายงาน OPD, IPD และ Traceability
+│   └── 10_test_queries.sql             <-- 10. Query ทดสอบระบบ และ Test Cases
+│
+├── H1_patient_registration/            <-- โมดูล H1: ระบบทะเบียนผู้ป่วย (Patient Registration)
+├── H2_appointments_opd/                <-- โมดูล H2: ระบบนัดหมายและผู้ป่วยนอก (Appointments & OPD)
+├── H3_billing_finance/                 <-- โมดูล H3: ระบบการเงินและบัญชี (Billing & Finance)
+├── H4_pharmacy/                        <-- โมดูล H4: ระบบเภสัชกรรมและคลังยา (Pharmacy & Medications)
+├── H5_laboratory/                      <-- โมดูล H5: ระบบห้องปฏิบัติการ (Laboratory System)
+├── H6_inpatient_ward/                  <-- โมดูล H6: ระบบผู้ป่วยในและหอผู้ป่วย (Inpatient & Wards)
+└── H7_staff_personnel/                 <-- โมดูล H7: ระบบบริหารบุคลากรและแพทย์ (Staff & Personnel)
 ```
 
 ---
