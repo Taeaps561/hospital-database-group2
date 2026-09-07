@@ -1,10 +1,11 @@
-# 📊 แผนภาพ ER Diagram โมดูล H7: ระบบบริหารบุคลากรและแพทย์ (Staff & Personnel)
-**ผู้รับผิดชอบ:** สมาชิก H7 (ระบบบุคลากร)  
-**มาตรฐานการออกแบบ:** 3NF (Third Normal Form), ปราศจาก M:N โดยตรง, ควบคุม Referential Integrity  
+# 📊 แผนภาพ ER Diagram โมดูล H7: ระบบบริหารบุคลากร และการบูรณาการร่วมกับ H6 (ผู้ป่วยใน)
+**ผู้รับผิดชอบ:** สมาชิก H7 (ระบบบริหารบุคลากรทางการแพทย์และเจ้าหน้าที่)  
+**มาตรฐานการออกแบบ:** 3NF (Third Normal Form), ปราศจาก M:N โดยตรง, ควบคุม Referential Integrity ครบถ้วน  
 
 ---
 
-## 1. แผนภาพ ER Diagram ระบบย่อย H7 (Mermaid Architecture)
+## 1. แผนภาพที่ 1: ระบบย่อย H7 เดี่ยวๆ (H7 Standalone ER Diagram)
+*แสดงโครงสร้าง 22 ตารางของระบบบริหารทรัพยากรบุคคลและบุคลากรทางการแพทย์*
 
 ```mermaid
 erDiagram
@@ -74,25 +75,83 @@ erDiagram
 
 ---
 
-## 2. คำอธิบายการออกแบบตามหลัก Normalization (3NF)
-1. **1NF (First Normal Form):**
-   - ทุกแอตทริบิวต์เป็น Atomic Value ไม่มีการเก็บเบอร์โทรศัพท์หลายเบอร์ในคอลัมน์เดียว โดยแยกเป็นตาราง `emergency_contacts` หรือคอลัมน์เฉพาะ
-   - รายการย่อยของเงินเดือนแยกเป็นตาราง `payroll_items`
-2. **2NF (Second Normal Form):**
-   - ตารางที่มี Composite Key เช่น `employee_specialties(employee_id, specialty_id)` ทุกคอลัมน์ (เช่น `certified_date`) ขึ้นตรงกับ Primary Key ทั้งสองตัวอย่างสมบูรณ์
-3. **3NF (Third Normal Form):**
-   - ขจัด Transitive Dependency โดยแยกข้อมูลคำนำหน้า (`titles`), เพศ (`genders`), ประเภทเวร (`shift_types`), ประเภทการลา (`leave_types`), และตำแหน่งพร้อมฐานเงินเดือน (`positions`) ออกเป็น Lookup Tables เพื่อไม่ให้มีแอตทริบิวต์ใดขึ้นต่อแอตทริบิวต์ที่ไม่ใช่คีย์หลัก
+## 2. แผนภาพที่ 2: การบูรณาการข้ามระบบ H7 (บุคลากร) + H6 (ผู้ป่วยในและวอร์ด)
+*แสดงจุดเชื่อมโยงสำคัญ (Inter-system Foreign Keys) ระหว่างแพทย์/พยาบาล (H7) กับการรับคนไข้และหอผู้ป่วย (H6)*
+
+```mermaid
+erDiagram
+    %% -----------------------------------------
+    %% H7: บุคลากรทางการแพทย์ (Staff & Personnel)
+    %% -----------------------------------------
+    departments ||--o{ employees : "สังกัดแผนก"
+    departments ||--o{ doctors : "แผนกที่ออกตรวจ"
+    employees ||--o| doctors : "บทบาทแพทย์ (employee_id)"
+    
+    %% -----------------------------------------
+    %% H6: ผู้ป่วยในและหอผู้ป่วย (Inpatient & Wards)
+    %% -----------------------------------------
+    departments ||--o{ wards : "กำกับดูแลวอร์ด (department_id)"
+    wards ||--o{ beds : "ติดตั้งเตียงในวอร์ด (ward_id)"
+    beds ||--o{ admissions : "ครองเตียงรักษา (bed_id)"
+
+    %% -----------------------------------------
+    %% จุดเชื่อมต่อข้ามระบบ (Cross-Module Links)
+    %% -----------------------------------------
+    doctors ||--o{ admissions : "แพทย์เจ้าของไข้ผู้ดูแล (attending_doctor_id)"
+    employees ||--o{ wards : "หัวหน้าพยาบาลประจำวอร์ด (head_nurse_id)"
+
+    %% คำอธิบายโครงสร้างตาราง
+    departments {
+        string department_id PK "รหัสแผนก"
+        string department_name "ชื่อแผนก"
+    }
+
+    employees {
+        string employee_id PK "รหัสบุคลากร"
+        string first_name "ชื่อ"
+        string last_name "นามสกุล"
+        string department_id FK "แผนกที่สังกัด"
+        string status "สถานะการทำงาน"
+    }
+
+    doctors {
+        string doctor_id PK "รหัสแพทย์ (สำหรับระบบอื่นอ้างอิง)"
+        string employee_id FK "รหัสบุคลากรหลัก"
+        string department_id FK "แผนกตรวจ"
+        string doctor_name "ชื่อ-นามสกุลแพทย์"
+    }
+
+    wards {
+        string ward_id PK "รหัสหอผู้ป่วย"
+        string ward_name "ชื่อวอร์ด"
+        string department_id FK "อ้างอิง H7 departments"
+        string head_nurse_id FK "อ้างอิง H7 employees (หัวหน้าพยาบาล)"
+        int bed_capacity "ความจุเตียง"
+    }
+
+    beds {
+        string bed_id PK "รหัสเตียง"
+        string ward_id FK "วอร์ดที่ติดตั้ง"
+        string room_number "หมายเลขห้อง"
+        string bed_status "สถานะเตียง (Available/Occupied)"
+    }
+
+    admissions {
+        string admission_id PK "รหัสการรับผู้ป่วยใน"
+        string patient_id FK "รหัสผู้ป่วย (H1)"
+        string attending_doctor_id FK "อ้างอิง H7 doctors (แพทย์เจ้าของไข้)"
+        string bed_id FK "เตียงที่นอน (H6)"
+        timestamp admission_date "วันเวลาที่รับเข้า"
+        timestamp discharge_date "วันเวลาที่จำหน่าย"
+    }
+```
 
 ---
 
-## 3. จุดเชื่อมต่อกับระบบอื่น (Inter-system Integration Points)
-* **เชื่อมต่อ H6 (ผู้ป่วยใน/วอร์ด):**
-  * `ipd_system.admissions(attending_doctor_id)` $\rightarrow$ `staff_system.doctors(doctor_id)` / `staff_system.employees(employee_id)`
-  * `ipd_system.wards(head_nurse_id)` $\rightarrow$ `staff_system.employees(employee_id)`
-  * `ipd_system.wards(department_id)` $\rightarrow$ `staff_system.departments(department_id)`
-* **เชื่อมต่อ H2 (นัดหมาย/OPD):**
-  * `opd_system.appointments(doctor_id)` $\rightarrow$ `staff_system.doctors(doctor_id)`
-* **เชื่อมต่อ H4 (เภสัชกรรม):**
-  * `pharmacy_system.prescriptions(doctor_id)` $\rightarrow$ `staff_system.doctors(doctor_id)`
-* **เชื่อมต่อ H5 (ห้องแล็บ):**
-  * `lab_system.lab_orders(doctor_id)` $\rightarrow$ `staff_system.doctors(doctor_id)`
+## 3. คำอธิบายจุดเชื่อมโยง (Integration Details)
+1. **แพทย์เจ้าของไข้ (Attending Physician):**
+   * ตาราง `admissions` ของ H6 มี Foreign Key `attending_doctor_id` ชี้ไปยัง `staff_system.doctors(doctor_id)` ซึ่งเชื่อมโยงต่อไปยัง `staff_system.employees(employee_id)` ของ H7 เพื่อให้ทราบประวัติและคุณวุฒิของแพทย์ผู้รักษา
+2. **หัวหน้าพยาบาลประจำวอร์ด (Head Nurse Assignment):**
+   * ตาราง `wards` ของ H6 มี Foreign Key `head_nurse_id` ชี้มายัง `staff_system.employees(employee_id)` เพื่อระบุพยาบาลวิชาชีพผู้รับผิดชอบการบริบาลในแต่ละหอผู้ป่วย
+3. **แผนกทางการแพทย์ (Clinical Department Hierarchy):**
+   * ตาราง `wards` ของ H6 อ้างอิง `department_id` มายังตาราง `staff_system.departments` ของ H7 เพื่อไม่ให้เกิดตารางแผนกซ้ำซ้อนตามหลัก 3NF
