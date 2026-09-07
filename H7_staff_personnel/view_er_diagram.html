@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Diagram - H7 ระบบบริหารบุคลากรทางการแพทย์</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #38bdf8;
+            margin-bottom: 8px;
+        }
+        p {
+            color: #94a3b8;
+            margin: 0 0 15px 0;
+        }
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #334155;
+        }
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+        .diagram-container {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 95vw;
+            overflow: auto;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>แผนภาพ ER Diagram: โมดูล H7 บุคลากร (Staff & Personnel)</h1>
+        <p>ระดับความสัมพันธ์ 3NF (Third Normal Form) | Hospital Database Group 2</p>
+        <div class="toolbar">
+            <button class="btn" onclick="downloadPNG()">📥 ดาวน์โหลดเป็นรูปภาพ PNG (สำหรับส่งงาน/ใส่สไลด์)</button>
+            <button class="btn btn-secondary" onclick="window.print()">🖨️ พิมพ์หรือบันทึกเป็น PDF</button>
+        </div>
+    </header>
+
+    <div class="diagram-container" id="diagramWrapper">
+        <div class="mermaid" id="mermaidDiagram">
+erDiagram
+    departments ||--o{ employees : "employs"
+    positions ||--o{ employees : "categorizes"
+    titles ||--o{ employees : "prefixes"
+    genders ||--o{ employees : "classifies"
+    
+    employees ||--o{ medical_licenses : "holds"
+    employees ||--o{ work_shifts : "scheduled"
+    shift_types ||--o{ work_shifts : "defines"
+    
+    employees ||--o{ attendance : "logs"
+    employees ||--o{ leave_requests : "requests"
+    leave_types ||--o{ leave_requests : "specifies"
+    
+    employees ||--o{ employee_contracts : "signs"
+    employees ||--o{ payroll : "receives"
+    payroll ||--o{ payroll_items : "itemizes"
+    
+    employees ||--o{ emergency_contacts : "contacts"
+    employees ||--o| users : "accesses"
+    roles ||--o{ users : "assigns"
+    
+    employees ||--o{ employee_specialties : "specializes"
+    specialties ||--o{ employee_specialties : "in"
+    
+    employees ||--o{ employee_department_history : "records_dept"
+    employees ||--o{ employee_position_history : "records_pos"
+
+    employees {
+        string employee_id PK
+        string first_name
+        string last_name
+        string national_id
+        date date_of_birth
+        string department_id FK
+        int position_id FK
+        string status
+        string email
+    }
+
+    departments {
+        string department_id PK
+        string department_name
+        string branch_id FK
+        string department_head_id FK
+    }
+
+    medical_licenses {
+        int license_id PK
+        string employee_id FK
+        string license_type
+        string license_number
+        date expiry_date
+        string status
+    }
+
+    payroll {
+        int payroll_id PK
+        string employee_id FK
+        date pay_period_start
+        date pay_period_end
+        numeric net_amount
+    }
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'dark',
+            securityLevel: 'loose'
+        });
+
+        function downloadPNG() {
+            const svgElement = document.querySelector("#mermaidDiagram svg");
+            if (!svgElement) {
+                alert("กำลังเรนเดอร์แผนภาพ กรุณารอสักครู่แล้วลองใหม่ครับ");
+                return;
+            }
+
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+
+            const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+
+            img.onload = function () {
+                canvas.width = img.width * 2; // high res
+                canvas.height = img.height * 2;
+                ctx.fillStyle = "#1e293b"; // background color
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const pngURL = canvas.toDataURL("image/png");
+                const downloadLink = document.createElement("a");
+                downloadLink.href = pngURL;
+                downloadLink.download = "H7_STAFF_ER_DIAGRAM.png";
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(blobURL);
+            };
+
+            img.src = blobURL;
+        }
+    </script>
+</body>
+</html>
