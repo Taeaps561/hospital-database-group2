@@ -16,3 +16,8 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Separate assignment
+W3Schools_PostgreSQL_Assignment/
+scratch*
+
