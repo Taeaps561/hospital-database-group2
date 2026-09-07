@@ -14,6 +14,7 @@
 | [**`unadjusted.html`**](./unadjusted.html) | 🌐 Source | ซอร์สโค้ด SVG/HTML Layout สำหรับเรนเดอร์ภาพก่อนปรับปรุง |
 | [**`consolidated.html`**](./consolidated.html) | 🌐 Source | ซอร์สโค้ด SVG/HTML Layout สำหรับเรนเดอร์ภาพฉบับสมบูรณ์ 3NF |
 | [**`er_consolidation_report.html`**](./er_consolidation_report.html) | 🌐 Web Report | รายงานฉบับเว็บ HTML เต็มรูปแบบ |
+| [**`h7_h6_integration_erd.mermaid`**](./h7_h6_integration_erd.mermaid) | 📐 Mermaid ERD | โครงสร้าง ER Diagram กลางฉบับรวมทุกตาราง H7 (23 ตาราง) + H6 (5 ตาราง) พร้อม Cross-Module Foreign Keys ครบ 3NF |
 
 ---
 
