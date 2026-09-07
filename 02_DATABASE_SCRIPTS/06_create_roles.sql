@@ -31,6 +31,9 @@ BEGIN
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'billing_officer_role') THEN
         CREATE ROLE billing_officer_role WITH NOLOGIN;
     END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'hr_manager_role') THEN
+        CREATE ROLE hr_manager_role WITH NOLOGIN;
+    END IF;
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'auditor_readonly_role') THEN
         CREATE ROLE auditor_readonly_role WITH NOLOGIN;
     END IF;

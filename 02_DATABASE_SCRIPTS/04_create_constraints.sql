@@ -74,7 +74,7 @@ ALTER TABLE patient_system.emergency_access_audit_log
 
 
 -- ==============================================================================
--- 2. FOREIGN KEYS เชื่อมโยงโมดูล H7: บุคลากร
+-- 2. FOREIGN KEYS และ CONSTRAINTS โมดูล H7: บุคลากร
 -- ==============================================================================
 
 ALTER TABLE staff_system.departments
@@ -82,12 +82,142 @@ ALTER TABLE staff_system.departments
     FOREIGN KEY (branch_id) REFERENCES patient_system.hospital_branches(branch_id)
     ON DELETE RESTRICT;
 
+ALTER TABLE staff_system.positions
+    ADD CONSTRAINT chk_positions_base_salary
+    CHECK (base_salary IS NULL OR base_salary >= 0.00);
+
+ALTER TABLE staff_system.employees
+    ADD CONSTRAINT fk_employees_title
+    FOREIGN KEY (title_id) REFERENCES staff_system.titles(title_id)
+    ON DELETE SET NULL,
+    ADD CONSTRAINT fk_employees_gender
+    FOREIGN KEY (gender_id) REFERENCES staff_system.genders(gender_id)
+    ON DELETE SET NULL,
+    ADD CONSTRAINT fk_employees_department
+    FOREIGN KEY (department_id) REFERENCES staff_system.departments(department_id)
+    ON DELETE RESTRICT,
+    ADD CONSTRAINT fk_employees_position
+    FOREIGN KEY (position_id) REFERENCES staff_system.positions(position_id)
+    ON DELETE RESTRICT,
+    ADD CONSTRAINT chk_employees_status
+    CHECK (status IN ('active', 'resigned', 'on leave', 'suspended', 'retired'));
+
+-- เชื่อมต่อหัวหน้าแผนกกลับมาที่พนักงาน
+ALTER TABLE staff_system.departments
+    ADD CONSTRAINT fk_departments_head
+    FOREIGN KEY (department_head_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE SET NULL;
+
 ALTER TABLE staff_system.doctors
+    ADD CONSTRAINT fk_doctors_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
     ADD CONSTRAINT fk_doctors_department
     FOREIGN KEY (department_id) REFERENCES staff_system.departments(department_id)
     ON DELETE RESTRICT,
     ADD CONSTRAINT chk_doctors_salary
     CHECK (salary_thb >= 0.0);
+
+ALTER TABLE staff_system.medical_licenses
+    ADD CONSTRAINT fk_licenses_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT chk_license_dates
+    CHECK (expiry_date IS NULL OR expiry_date >= issued_date),
+    ADD CONSTRAINT chk_license_status
+    CHECK (status IN ('active', 'suspended', 'revoked', 'expired'));
+
+ALTER TABLE staff_system.employee_specialties
+    ADD CONSTRAINT fk_specialties_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_specialties_specialty
+    FOREIGN KEY (specialty_id) REFERENCES staff_system.specialties(specialty_id)
+    ON DELETE RESTRICT;
+
+ALTER TABLE staff_system.employee_department_history
+    ADD CONSTRAINT fk_dept_hist_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_dept_hist_dept
+    FOREIGN KEY (department_id) REFERENCES staff_system.departments(department_id)
+    ON DELETE RESTRICT;
+
+ALTER TABLE staff_system.employee_position_history
+    ADD CONSTRAINT fk_pos_hist_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_pos_hist_pos
+    FOREIGN KEY (position_id) REFERENCES staff_system.positions(position_id)
+    ON DELETE RESTRICT;
+
+ALTER TABLE staff_system.work_shifts
+    ADD CONSTRAINT fk_shifts_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_shifts_type
+    FOREIGN KEY (shift_type_id) REFERENCES staff_system.shift_types(shift_type_id)
+    ON DELETE RESTRICT;
+
+ALTER TABLE staff_system.attendance
+    ADD CONSTRAINT fk_attendance_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_attendance_shift
+    FOREIGN KEY (shift_id) REFERENCES staff_system.work_shifts(shift_id)
+    ON DELETE SET NULL,
+    ADD CONSTRAINT chk_attendance_times
+    CHECK (check_out_time IS NULL OR check_out_time >= check_in_time);
+
+ALTER TABLE staff_system.leave_requests
+    ADD CONSTRAINT fk_leaves_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_leaves_type
+    FOREIGN KEY (leave_type_id) REFERENCES staff_system.leave_types(leave_type_id)
+    ON DELETE RESTRICT,
+    ADD CONSTRAINT fk_leaves_approver
+    FOREIGN KEY (approved_by) REFERENCES staff_system.employees(employee_id)
+    ON DELETE SET NULL,
+    ADD CONSTRAINT chk_leave_dates
+    CHECK (end_date >= start_date);
+
+ALTER TABLE staff_system.employee_contracts
+    ADD CONSTRAINT fk_contracts_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE;
+
+ALTER TABLE staff_system.payroll
+    ADD CONSTRAINT fk_payroll_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT chk_payroll_period
+    CHECK (pay_period_end >= pay_period_start);
+
+ALTER TABLE staff_system.payroll_items
+    ADD CONSTRAINT fk_payroll_items_payroll
+    FOREIGN KEY (payroll_id) REFERENCES staff_system.payroll(payroll_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT chk_payroll_item_type
+    CHECK (item_type IN ('earning', 'deduction'));
+
+ALTER TABLE staff_system.emergency_contacts
+    ADD CONSTRAINT fk_emergency_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE;
+
+ALTER TABLE staff_system.users
+    ADD CONSTRAINT fk_users_employee
+    FOREIGN KEY (employee_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE CASCADE,
+    ADD CONSTRAINT fk_users_role
+    FOREIGN KEY (role_id) REFERENCES staff_system.roles(role_id)
+    ON DELETE RESTRICT;
+
+ALTER TABLE staff_system.audit_logs
+    ADD CONSTRAINT fk_audit_user
+    FOREIGN KEY (user_id) REFERENCES staff_system.users(user_id)
+    ON DELETE SET NULL;
 
 -- เชื่อมต่อบัญชีความปลอดภัยผู้ใช้ไปยังแพทย์
 ALTER TABLE patient_system.users_security
@@ -169,7 +299,10 @@ ALTER TABLE pharmacy_system.prescription_items
 ALTER TABLE ipd_system.wards
     ADD CONSTRAINT fk_wards_department
     FOREIGN KEY (department_id) REFERENCES staff_system.departments(department_id)
-    ON DELETE RESTRICT;
+    ON DELETE RESTRICT,
+    ADD CONSTRAINT fk_wards_head_nurse
+    FOREIGN KEY (head_nurse_id) REFERENCES staff_system.employees(employee_id)
+    ON DELETE SET NULL;
 
 ALTER TABLE ipd_system.beds
     ADD CONSTRAINT fk_beds_ward

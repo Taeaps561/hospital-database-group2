@@ -53,6 +53,15 @@ GRANT USAGE ON SCHEMA billing_system, patient_system TO billing_officer_role;
 GRANT SELECT ON patient_system.patients, patient_system.patient_insurance_policies TO billing_officer_role;
 GRANT SELECT, INSERT, UPDATE ON billing_system.invoices TO billing_officer_role;
 
--- 8. สิทธิ์สำหรับผู้ตรวจสอบ (Auditor Readonly Role)
+-- 8. สิทธิ์สำหรับฝ่ายบริหารทรัพยากรบุคคล (HR Manager Role)
+GRANT USAGE ON SCHEMA staff_system TO hr_manager_role;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA staff_system TO hr_manager_role;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA staff_system TO hr_manager_role;
+
+-- สิทธิ์สำหรับบุคลากรทางการแพทย์ (แพทย์/พยาบาล) ในการดูข้อมูลตารางเวรและการยื่นคำขอลา
+GRANT SELECT ON staff_system.departments, staff_system.positions, staff_system.work_shifts, staff_system.shift_types TO doctor_role, nurse_ward_role;
+GRANT SELECT, INSERT ON staff_system.leave_requests TO doctor_role, nurse_ward_role;
+
+-- 9. สิทธิ์สำหรับผู้ตรวจสอบ (Auditor Readonly Role)
 GRANT USAGE ON SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO auditor_readonly_role;
 GRANT SELECT ON ALL TABLES IN SCHEMA patient_system, opd_system, billing_system, pharmacy_system, lab_system, ipd_system, staff_system TO auditor_readonly_role;

@@ -102,23 +102,222 @@ CREATE TABLE IF NOT EXISTS patient_system.emergency_access_audit_log (
 
 -- ==============================================================================
 -- 👨‍⚕️ โมดูล H7: ระบบบริหารบุคลากรและแพทย์ (Staff & Personnel System)
--- ข้อมูลหลัก: แพทย์, แผนก, บุคลากรทางการแพทย์
+-- ผู้รับผิดชอบ: สมาชิก H7
+-- ข้อมูลหลัก: แพทย์, พยาบาล, บุคลากร, ใบอนุญาต, ตารางเวร, การลา, เงินเดือน และสิทธิ์การใช้งาน
 -- ==============================================================================
 
+-- 1. ตาราง Lookup พื้นฐาน
+CREATE TABLE IF NOT EXISTS staff_system.titles (
+    title_id SERIAL PRIMARY KEY,
+    title_name VARCHAR(30) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.genders (
+    gender_id SERIAL PRIMARY KEY,
+    gender_name VARCHAR(20) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.shift_types (
+    shift_type_id SERIAL PRIMARY KEY,
+    shift_name VARCHAR(50) NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.specialties (
+    specialty_id SERIAL PRIMARY KEY,
+    specialty_name VARCHAR(150) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.leave_types (
+    leave_type_id SERIAL PRIMARY KEY,
+    leave_name VARCHAR(50) NOT NULL,
+    max_days_per_year INT,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.roles (
+    role_id SERIAL PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT
+);
+
+-- 2. ตารางแผนกและตำแหน่งงาน
 CREATE TABLE IF NOT EXISTS staff_system.departments (
     department_id VARCHAR(50) PRIMARY KEY,
     branch_id VARCHAR(50) NOT NULL,
-    department_name VARCHAR(100) NOT NULL
+    department_name VARCHAR(100) NOT NULL,
+    contact_number VARCHAR(20),
+    department_head_id VARCHAR(50)
 );
 
+CREATE TABLE IF NOT EXISTS staff_system.positions (
+    position_id SERIAL PRIMARY KEY,
+    position_name VARCHAR(100) NOT NULL,
+    base_salary NUMERIC(12, 2)
+);
+
+-- 3. ตารางข้อมูลหลักบุคลากร (Central Employee Entity)
+CREATE TABLE IF NOT EXISTS staff_system.employees (
+    employee_id VARCHAR(50) PRIMARY KEY,
+    title_id INT,
+    gender_id INT,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    national_id VARCHAR(13),
+    date_of_birth DATE,
+    hire_date DATE,
+    department_id VARCHAR(50) NOT NULL,
+    position_id INT NOT NULL,
+    status VARCHAR(20) DEFAULT 'active',
+    phone VARCHAR(20),
+    email VARCHAR(150) UNIQUE,
+    address TEXT,
+    marital_status VARCHAR(20),
+    photo_url TEXT
+);
+
+-- ตารางแพทย์สำหรับความเข้ากันได้ย้อนหลังกับโมดูลอื่น (Backward Compatibility Bridge)
 CREATE TABLE IF NOT EXISTS staff_system.doctors (
     doctor_id VARCHAR(50) PRIMARY KEY,
+    employee_id VARCHAR(50),
     department_id VARCHAR(50) NOT NULL,
     doctor_name VARCHAR(150) NOT NULL,
     email VARCHAR(150),
     salary_thb NUMERIC(12, 2),
     position VARCHAR(100)
 );
+
+-- 4. ตารางวิชาชีพแพทย์และความเชี่ยวชาญ
+CREATE TABLE IF NOT EXISTS staff_system.medical_licenses (
+    license_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    license_type VARCHAR(100),
+    license_number VARCHAR(50),
+    issued_date DATE,
+    expiry_date DATE,
+    issuing_authority VARCHAR(150),
+    status VARCHAR(20) NOT NULL DEFAULT 'active'
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.employee_specialties (
+    employee_id VARCHAR(50) NOT NULL,
+    specialty_id INT NOT NULL,
+    certified_date DATE,
+    PRIMARY KEY (employee_id, specialty_id)
+);
+
+-- 5. ตารางประวัติการทำงานและการโยกย้าย
+CREATE TABLE IF NOT EXISTS staff_system.employee_department_history (
+    history_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    department_id VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.employee_position_history (
+    history_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    position_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE
+);
+
+-- 6. ตารางเวรปฏิบัติงาน การเข้างาน และการลา
+CREATE TABLE IF NOT EXISTS staff_system.work_shifts (
+    shift_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    shift_date DATE NOT NULL,
+    shift_type_id INT
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.attendance (
+    attendance_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    shift_id INT,
+    work_date DATE NOT NULL,
+    check_in_time TIMESTAMP,
+    check_out_time TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'present'
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.leave_requests (
+    leave_request_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    leave_type_id INT NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    reason TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    approved_by VARCHAR(50),
+    requested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    approved_at TIMESTAMP
+);
+
+-- 7. สัญญาจ้างงานและเงินเดือน
+CREATE TABLE IF NOT EXISTS staff_system.employee_contracts (
+    contract_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    contract_type VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    probation_end_date DATE,
+    contract_file_url TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.payroll (
+    payroll_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    pay_period_start DATE NOT NULL,
+    pay_period_end DATE NOT NULL,
+    net_amount NUMERIC(12, 2) NOT NULL,
+    paid_at TIMESTAMP,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending'
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.payroll_items (
+    payroll_item_id SERIAL PRIMARY KEY,
+    payroll_id INT NOT NULL,
+    item_type VARCHAR(20) NOT NULL,
+    item_name VARCHAR(100) NOT NULL,
+    amount NUMERIC(12, 2) NOT NULL
+);
+
+-- 8. ข้อมูลติดต่อฉุกเฉินและระบบผู้ใช้ / บันทึกตรวจสอบ
+CREATE TABLE IF NOT EXISTS staff_system.emergency_contacts (
+    contact_id SERIAL PRIMARY KEY,
+    employee_id VARCHAR(50) NOT NULL,
+    contact_name VARCHAR(150) NOT NULL,
+    relationship VARCHAR(50),
+    phone_number VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.users (
+    user_id VARCHAR(50) PRIMARY KEY,
+    employee_id VARCHAR(50) UNIQUE,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role_id INT NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    last_login_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS staff_system.audit_logs (
+    audit_id SERIAL PRIMARY KEY,
+    user_id VARCHAR(50),
+    action VARCHAR(50) NOT NULL,
+    table_name VARCHAR(100) NOT NULL,
+    record_id TEXT,
+    old_values JSONB,
+    new_values JSONB,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 
 
 -- ==============================================================================
@@ -221,7 +420,8 @@ CREATE TABLE IF NOT EXISTS ipd_system.wards (
     department_id VARCHAR(50) NOT NULL,
     ward_name VARCHAR(100) NOT NULL,
     ward_type VARCHAR(50) NOT NULL,
-    bed_capacity INT NOT NULL
+    bed_capacity INT NOT NULL,
+    head_nurse_id VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS ipd_system.beds (

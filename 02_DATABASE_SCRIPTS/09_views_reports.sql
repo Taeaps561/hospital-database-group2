@@ -55,6 +55,7 @@ SELECT
     adm.discharge_date,
     adm.length_of_stay_days,
     d.doctor_name AS attending_physician,
+    nurse.first_name || ' ' || nurse.last_name AS head_nurse_name,
     inv.invoice_id,
     inv.total_amount_thb,
     inv.insurance_paid_thb,
@@ -65,7 +66,26 @@ JOIN patient_system.patients p ON adm.patient_id = p.patient_id
 JOIN ipd_system.beds b ON adm.bed_id = b.bed_id
 JOIN ipd_system.wards w ON b.ward_id = w.ward_id
 JOIN staff_system.doctors d ON adm.attending_doctor_id = d.doctor_id
+LEFT JOIN staff_system.employees nurse ON w.head_nurse_id = nurse.employee_id
 LEFT JOIN billing_system.invoices inv ON adm.patient_id = inv.patient_id AND inv.service_reference = adm.admission_id;
+
+-- 2.1 View แสดงข้อมูลการดูแลทางคลินิกและบุคลากรประจำวอร์ด (Ward Clinical & Staff Coverage View)
+CREATE OR REPLACE VIEW staff_system.v_ward_clinical_coverage AS
+SELECT 
+    w.ward_id,
+    w.ward_name,
+    w.ward_type,
+    dept.department_name,
+    nurse.first_name || ' ' || nurse.last_name AS head_nurse_name,
+    nurse.phone AS head_nurse_contact,
+    COUNT(b.bed_id) AS total_beds,
+    COUNT(b.bed_id) FILTER (WHERE b.bed_status = 'Occupied') AS occupied_beds,
+    COUNT(b.bed_id) FILTER (WHERE b.bed_status = 'Available') AS available_beds
+FROM ipd_system.wards w
+JOIN staff_system.departments dept ON w.department_id = dept.department_id
+LEFT JOIN staff_system.employees nurse ON w.head_nurse_id = nurse.employee_id
+LEFT JOIN ipd_system.beds b ON w.ward_id = b.ward_id
+GROUP BY w.ward_id, w.ward_name, w.ward_type, dept.department_name, nurse.first_name, nurse.last_name, nurse.phone;
 
 
 -- ==============================================================================

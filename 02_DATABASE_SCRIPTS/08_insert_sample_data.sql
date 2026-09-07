@@ -53,17 +53,128 @@ INSERT INTO patient_system.patient_insurance_policies
 (3, 'P000002', 2, 'SSO-BANGKOK-1234', 100000.00, '2028-06-30')
 ON CONFLICT (policy_id) DO NOTHING;
 
--- 4. ข้อมูลแผนกและแพทย์ (H7 บุคลากร)
-INSERT INTO staff_system.departments (department_id, branch_id, department_name) VALUES
-('DEP01', 'B001', 'แผนกอายุรกรรม (Internal Medicine)'),
-('DEP02', 'B001', 'แผนกศัลยกรรม (General Surgery)'),
-('DEP03', 'B001', 'แผนกอายุรกรรมโรคหัวใจ (Cardiology)')
+-- 4. ข้อมูลระบบบริหารบุคลากรทางการแพทย์ (H7 บุคลากร & HR Master)
+-- 4.1 ตาราง Lookup
+INSERT INTO staff_system.titles (title_id, title_name) VALUES
+(1, 'นาย'), (2, 'นาง'), (3, 'นางสาว'), (4, 'นพ.'), (5, 'พญ.')
+ON CONFLICT (title_id) DO NOTHING;
+
+INSERT INTO staff_system.genders (gender_id, gender_name) VALUES
+(1, 'ชาย'), (2, 'หญิง'), (3, 'ไม่ระบุ')
+ON CONFLICT (gender_id) DO NOTHING;
+
+INSERT INTO staff_system.shift_types (shift_type_id, shift_name, start_time, end_time, description) VALUES
+(1, 'เวรเช้า (Morning Shift)', '07:00:00', '15:00:00', 'ปฏิบัติหน้าที่เวรเช้าประจำวอร์ดและแผนกตรวจ'),
+(2, 'เวรบ่าย (Afternoon Shift)', '15:00:00', '23:00:00', 'ปฏิบัติหน้าที่เวรบ่ายประจำวอร์ด'),
+(3, 'เวรดึก (Night Shift)', '23:00:00', '07:00:00', 'ปฏิบัติหน้าที่เวรดึกและการบริบาลฉุกเฉิน')
+ON CONFLICT (shift_type_id) DO NOTHING;
+
+INSERT INTO staff_system.specialties (specialty_id, specialty_name, description) VALUES
+(1, 'อายุรศาสตร์ทั่วไป', 'การบริบาลและรักษาโรคทางอายุรกรรมทั่วไป'),
+(2, 'อายุรศาสตร์โรคหัวใจ', 'ความเชี่ยวชาญด้านหัวใจและหลอดเลือด'),
+(3, 'การพยาบาลผู้ป่วยวิกฤตและผู้ป่วยใน', 'ความเชี่ยวชาญการบริบาลผู้ป่วยในหอผู้ป่วย')
+ON CONFLICT (specialty_id) DO NOTHING;
+
+INSERT INTO staff_system.leave_types (leave_type_id, leave_name, max_days_per_year, description) VALUES
+(1, 'ลาป่วย', 30, 'ลาป่วยตามสิทธิ พ.ร.บ. คุ้มครองแรงงาน'),
+(2, 'ลากิจ', 10, 'ลากิจส่วนตัวธุระจำเป็น'),
+(3, 'ลาพักร้อนประจำปี', 10, 'วันหยุดพักผ่อนประจำปี')
+ON CONFLICT (leave_type_id) DO NOTHING;
+
+INSERT INTO staff_system.roles (role_id, role_name, description) VALUES
+(1, 'HR Admin', 'ผู้ดูแลระบบบริหารทรัพยากรบุคคล'),
+(2, 'Physician', 'แพทย์ผู้ทำการตรวจรักษา'),
+(3, 'Head Nurse', 'หัวหน้าพยาบาลประจำวอร์ด')
+ON CONFLICT (role_id) DO NOTHING;
+
+-- 4.2 แผนกและตำแหน่ง
+INSERT INTO staff_system.departments (department_id, branch_id, department_name, contact_number) VALUES
+('DEP01', 'B001', 'แผนกอายุรกรรม (Internal Medicine)', '02-111-1001'),
+('DEP02', 'B001', 'แผนกศัลยกรรม (General Surgery)', '02-111-1002'),
+('DEP03', 'B001', 'แผนกอายุรกรรมโรคหัวใจ (Cardiology)', '02-111-1003')
 ON CONFLICT (department_id) DO NOTHING;
 
-INSERT INTO staff_system.doctors (doctor_id, department_id, doctor_name, email, salary_thb, position) VALUES
-('DOC001', 'DEP01', 'นพ. วิทยา รักษาดี', 'wittaya.r@hospital.org', 120000.00, 'อายุรแพทย์ทั่วไป'),
-('DOC002', 'DEP03', 'พญ. ปรียา หทัยธรรม', 'preeya.h@hospital.org', 150000.00, 'อายุรแพทย์โรคหัวใจ')
+INSERT INTO staff_system.positions (position_id, position_name, base_salary) VALUES
+(1, 'อายุรแพทย์ผู้เชี่ยวชาญ', 120000.00),
+(2, 'อายุรแพทย์โรคหัวใจ', 150000.00),
+(3, 'หัวหน้าพยาบาลวิชาชีพชำนาญการ', 55000.00),
+(4, 'พยาบาลวิชาชีพประจำวอร์ด', 38000.00)
+ON CONFLICT (position_id) DO NOTHING;
+
+-- 4.3 บุคลากรหลัก (Employees)
+INSERT INTO staff_system.employees 
+(employee_id, title_id, gender_id, first_name, last_name, national_id, date_of_birth, hire_date, department_id, position_id, status, phone, email) VALUES
+('EMP001', 4, 1, 'วิทยา', 'รักษาดี', '1100500123456', '1980-03-15', '2015-06-01', 'DEP01', 1, 'active', '0812223344', 'wittaya.r@hospital.org'),
+('EMP002', 5, 2, 'ปรียา', 'หทัยธรรม', '1100600234567', '1983-08-20', '2018-02-15', 'DEP03', 2, 'active', '0813334455', 'preeya.h@hospital.org'),
+('EMP003', 3, 2, 'วริศรา', 'ดูแลดี', '1100700345678', '1988-11-10', '2019-08-01', 'DEP01', 3, 'active', '0814445566', 'warisara.n@hospital.org')
+ON CONFLICT (employee_id) DO NOTHING;
+
+-- อัปเดตหัวหน้าแผนก
+UPDATE staff_system.departments SET department_head_id = 'EMP001' WHERE department_id = 'DEP01';
+UPDATE staff_system.departments SET department_head_id = 'EMP002' WHERE department_id = 'DEP03';
+
+-- 4.4 ตารางเชื่อมโยงแพทย์ (Doctors Table Bridge)
+INSERT INTO staff_system.doctors (doctor_id, employee_id, department_id, doctor_name, email, salary_thb, position) VALUES
+('DOC001', 'EMP001', 'DEP01', 'นพ. วิทยา รักษาดี', 'wittaya.r@hospital.org', 120000.00, 'อายุรแพทย์ทั่วไป'),
+('DOC002', 'EMP002', 'DEP03', 'พญ. ปรียา หทัยธรรม', 'preeya.h@hospital.org', 150000.00, 'อายุรแพทย์โรคหัวใจ')
 ON CONFLICT (doctor_id) DO NOTHING;
+
+-- 4.5 ใบอนุญาตประกอบวิชาชีพ
+INSERT INTO staff_system.medical_licenses (license_id, employee_id, license_type, license_number, issued_date, expiry_date, issuing_authority, status) VALUES
+(1, 'EMP001', 'ใบอนุญาตประกอบวิชาชีพเวชกรรม', 'MD-TH-48201', '2010-04-01', '2030-03-31', 'แพทยสภา', 'active'),
+(2, 'EMP002', 'ใบอนุญาตประกอบวิชาชีพเวชกรรมเฉพาะทาง', 'MD-CARDIO-52918', '2014-06-15', '2034-06-14', 'แพทยสภา', 'active'),
+(3, 'EMP003', 'ใบอนุญาตประกอบวิชาชีพการพยาบาลและการผดุงครรภ์ชั้นหนึ่ง', 'RN-TH-77312', '2012-05-10', '2032-05-09', 'สภาการพยาบาล', 'active')
+ON CONFLICT (license_id) DO NOTHING;
+
+-- 4.6 ความเชี่ยวชาญบุคลากร
+INSERT INTO staff_system.employee_specialties (employee_id, specialty_id, certified_date) VALUES
+('EMP001', 1, '2010-04-01'),
+('EMP002', 2, '2014-06-15'),
+('EMP003', 3, '2012-05-10')
+ON CONFLICT (employee_id, specialty_id) DO NOTHING;
+
+-- 4.7 ตารางเวรปฏิบัติงาน (Work Shifts)
+INSERT INTO staff_system.work_shifts (shift_id, employee_id, shift_date, shift_type_id) VALUES
+(1, 'EMP001', '2026-08-31', 1),
+(2, 'EMP002', '2026-08-25', 1),
+(3, 'EMP003', '2026-08-25', 1),
+(4, 'EMP003', '2026-08-26', 1)
+ON CONFLICT (shift_id) DO NOTHING;
+
+-- 4.8 สัญญาจ้างงานและประวัติเงินเดือน
+INSERT INTO staff_system.employee_contracts (contract_id, employee_id, contract_type, start_date, is_active) VALUES
+(1, 'EMP001', 'พนักงานประจำสัญญาจ้างระยะยาว', '2015-06-01', TRUE),
+(2, 'EMP002', 'พนักงานประจำสัญญาจ้างระยะยาว', '2018-02-15', TRUE),
+(3, 'EMP003', 'พนักงานประจำสัญญาจ้างระยะยาว', '2019-08-01', TRUE)
+ON CONFLICT (contract_id) DO NOTHING;
+
+INSERT INTO staff_system.payroll (payroll_id, employee_id, pay_period_start, pay_period_end, net_amount, paid_at, status) VALUES
+(1, 'EMP001', '2026-08-01', '2026-08-31', 115000.00, '2026-08-31 17:00:00', 'paid'),
+(2, 'EMP002', '2026-08-01', '2026-08-31', 143500.00, '2026-08-31 17:00:00', 'paid'),
+(3, 'EMP003', '2026-08-01', '2026-08-31', 52500.00, '2026-08-31 17:00:00', 'paid')
+ON CONFLICT (payroll_id) DO NOTHING;
+
+INSERT INTO staff_system.payroll_items (payroll_item_id, payroll_id, item_type, item_name, amount) VALUES
+(1, 1, 'earning', 'เงินเดือนพื้นฐาน', 120000.00),
+(2, 1, 'deduction', 'ภาษีหัก ณ ที่จ่ายและประกันสังคม', 5000.00),
+(3, 2, 'earning', 'เงินเดือนพื้นฐาน', 150000.00),
+(4, 2, 'deduction', 'ภาษีหัก ณ ที่จ่ายและประกันสังคม', 6500.00),
+(5, 3, 'earning', 'เงินเดือนพื้นฐานและค่าเวรพิเศษ', 55000.00),
+(6, 3, 'deduction', 'ภาษีหัก ณ ที่จ่ายและประกันสังคม', 2500.00)
+ON CONFLICT (payroll_item_id) DO NOTHING;
+
+-- 4.9 ข้อมูลติดต่อฉุกเฉินและบัญชีผู้ใช้งาน
+INSERT INTO staff_system.emergency_contacts (contact_id, employee_id, contact_name, relationship, phone_number) VALUES
+(1, 'EMP001', 'นาง สมพร รักษาดี', 'คู่สมรส', '0891112233'),
+(2, 'EMP002', 'นาย ชาญชัย หทัยธรรม', 'บิดา', '0892223344'),
+(3, 'EMP003', 'นาย ธีระ ดูแลดี', 'บิดา', '0893334455')
+ON CONFLICT (contact_id) DO NOTHING;
+
+INSERT INTO staff_system.users (user_id, employee_id, username, password_hash, role_id, is_active) VALUES
+('USR-EMP001', 'EMP001', 'dr.wittaya', '$2a$12$e8Yh9KqO7aQ/fakehashwittaya1234567890abcdef', 2, TRUE),
+('USR-EMP002', 'EMP002', 'dr.preeya', '$2a$12$e8Yh9KqO7aQ/fakehashpreeya1234567890abcdef', 2, TRUE),
+('USR-EMP003', 'EMP003', 'nurse.warisara', '$2a$12$e8Yh9KqO7aQ/fakehashwarisara1234567890abcdef', 3, TRUE)
+ON CONFLICT (user_id) DO NOTHING;
 
 -- 5. ข้อมูลการนัดหมายและวินิจฉัย (H2 นัดหมาย/OPD)
 INSERT INTO opd_system.diagnoses (diagnosis_id, icd_code, diagnosis_name, diagnosis_category) VALUES
@@ -104,9 +215,9 @@ ON CONFLICT (prescription_id) DO NOTHING;
 INSERT INTO pharmacy_system.prescription_items (prescription_id, medication_id, quantity, instructions) VALUES
 ('RX001', 'MED01', 30, 'ทานต่อเนื่อง 1 เดือนเพื่อคุมความดัน');
 
--- 8. ข้อมูลวอร์ด เตียง และการรับผู้ป่วยใน (H6 วอร์ด/IPD)
-INSERT INTO ipd_system.wards (ward_id, department_id, ward_name, ward_type, bed_capacity) VALUES
-('W01', 'DEP01', 'หอผู้ป่วยอายุรกรรมชาย 1', 'General', 20)
+-- 8. ข้อมูลวอร์ด เตียง และการรับผู้ป่วยใน (H6 วอร์ด/IPD เชื่อม H7 บุคลากร)
+INSERT INTO ipd_system.wards (ward_id, department_id, ward_name, ward_type, bed_capacity, head_nurse_id) VALUES
+('W01', 'DEP01', 'หอผู้ป่วยอายุรกรรมชาย 1', 'General', 20, 'EMP003')
 ON CONFLICT (ward_id) DO NOTHING;
 
 INSERT INTO ipd_system.beds (bed_id, ward_id, room_number, bed_type, bed_status) VALUES

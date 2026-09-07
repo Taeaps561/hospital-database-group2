@@ -88,3 +88,31 @@ CREATE INDEX IF NOT EXISTS idx_invoices_date
 
 CREATE INDEX IF NOT EXISTS idx_invoices_status 
     ON billing_system.invoices(payment_status);
+
+-- 7. Indexes สำหรับโมดูล H7: บุคลากร และจุดเชื่อมต่อ H6 ผู้ป่วยใน
+CREATE INDEX IF NOT EXISTS idx_employees_department 
+    ON staff_system.employees(department_id);
+
+CREATE INDEX IF NOT EXISTS idx_employees_position 
+    ON staff_system.employees(position_id);
+
+CREATE INDEX IF NOT EXISTS idx_employees_name 
+    ON staff_system.employees(last_name, first_name);
+
+CREATE INDEX IF NOT EXISTS idx_attendance_employee_date 
+    ON staff_system.attendance(employee_id, work_date);
+
+CREATE INDEX IF NOT EXISTS idx_work_shifts_employee_date 
+    ON staff_system.work_shifts(employee_id, shift_date);
+
+CREATE INDEX IF NOT EXISTS idx_payroll_employee_period 
+    ON staff_system.payroll(employee_id, pay_period_start);
+
+CREATE INDEX IF NOT EXISTS idx_medical_licenses_employee 
+    ON staff_system.medical_licenses(employee_id);
+
+CREATE INDEX IF NOT EXISTS idx_admissions_attending_doctor 
+    ON ipd_system.admissions(attending_doctor_id);
+
+CREATE INDEX IF NOT EXISTS idx_wards_head_nurse 
+    ON ipd_system.wards(head_nurse_id);
