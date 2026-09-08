@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>H3 Billing & Finance Integration ER Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f172a;
+    font-family: 'Sarabun', sans-serif;
+    color: #f8fafc;
+    width: 2200px;
+    height: 1350px;
+    padding: 30px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .header h1 {
+    font-size: 30px;
+    color: #38bdf8;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .header p {
+    font-size: 16px;
+    color: #94a3b8;
+    margin-top: 6px;
+  }
+  .header .badge {
+    background: #0284c7;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .canvas {
+    position: relative;
+    width: 2140px;
+    height: 1200px;
+    background: #1e293b;
+    border: 2px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  svg.wires {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .card {
+    position: absolute;
+    background: #0f172a;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 10;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .card-header {
+    padding: 10px 14px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-body {
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    background: #1e293b;
+  }
+  .pk { color: #f59e0b; font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-right: 5px; }
+  .fk { color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-right: 5px; }
+  .attr { color: #cbd5e1; }
+  .sub-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+
+  /* Themes */
+  .theme-h3 { border: 2px solid #f59e0b; }
+  .theme-h3 .card-header { background: linear-gradient(135deg, #d97706, #b45309); }
+
+  .theme-h1 { border: 2px solid #0284c7; }
+  .theme-h1 .card-header { background: linear-gradient(135deg, #0284c7, #0369a1); }
+
+  .theme-h2 { border: 2px solid #8b5cf6; }
+  .theme-h2 .card-header { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+
+  .theme-h4 { border: 2px solid #10b981; }
+  .theme-h4 .card-header { background: linear-gradient(135deg, #10b981, #047857); }
+
+  .theme-h5 { border: 2px solid #06b6d4; }
+  .theme-h5 .card-header { background: linear-gradient(135deg, #06b6d4, #0e7490); }
+
+  .theme-h6 { border: 2px solid #f43f5e; }
+  .theme-h6 .card-header { background: linear-gradient(135deg, #f43f5e, #be123c); }
+
+  .conn-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+
+  .legend-box {
+    position: absolute;
+    bottom: 20px;
+    left: 40px;
+    background: #0f172a;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 12px 20px;
+    display: flex;
+    gap: 25px;
+    z-index: 20;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>โมดูล H3 การเงิน (Hospital Billing & Finance Integration ER Diagram)</h1>
+  <p>
+    <b>ผู้รับผิดชอบ: นายนธิศ (u68001)</b> | 
+    <span class="badge">ข้อมูลหลัก: ใบแจ้งหนี้ • รายการค่าใช้จ่าย • การชำระเงิน</span> | 
+    <b>บูรณาการเชื่อมต่อครบ 5 ระบบย่อย: H1 (ผู้ป่วย), H2 (OPD), H4 (ค่ายา), H5 (ค่าแล็บ), H6 (ผู้ป่วยใน IPD)</b>
+  </p>
+</div>
+
+<div class="canvas">
+  <svg class="wires">
+    <defs>
+      <marker id="arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+      </marker>
+      <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+      </marker>
+      <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#a78bfa"/>
+      </marker>
+      <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
+      </marker>
+      <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#22d3ee"/>
+      </marker>
+      <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#fb7185"/>
+      </marker>
+    </defs>
+
+    <!-- 1. H1 -> H3 invoices (patient_id) -->
+    <path d="M 460 120 L 880 120 L 880 340" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arrow-blue)"/>
+    <text x="580" y="110" class="conn-text" fill="#38bdf8">1:N [H1 ➔ H3] patient_id (ข้อมูลผู้ป่วย)</text>
+
+    <!-- 2. H1 Insurance -> H3 invoices (policy_id) -->
+    <path d="M 460 270 L 840 270 L 840 370 L 880 370" stroke="#38bdf8" stroke-width="2.5" fill="none" marker-end="url(#arrow-blue)"/>
+    <text x="520" y="260" class="conn-text" fill="#38bdf8">1:N [H1 ➔ H3] policy_id (Split Billing เคลมประกัน)</text>
+
+    <!-- 3. H2 OPD -> H3 invoices (visit_id) -->
+    <path d="M 460 480 L 880 480" stroke="#a78bfa" stroke-width="2.5" fill="none" marker-end="url(#arrow-purple)"/>
+    <text x="550" y="470" class="conn-text" fill="#a78bfa">1:N [H2 ➔ H3] visit_id (รวบรวมค่าตรวจรักษา OPD)</text>
+
+    <!-- 4. H6 Admissions -> H3 invoices (admission_id) -->
+    <path d="M 460 920 L 880 920 L 880 570" stroke="#fb7185" stroke-width="2.5" fill="none" marker-end="url(#arrow-rose)"/>
+    <text x="530" y="910" class="conn-text" fill="#fb7185">1:N [H6 ➔ H3] admission_id (สรุปค่าห้อง/เตียง IPD Discharge)</text>
+
+    <!-- 5. H6 Admissions -> H3 deposits (admission_id) -->
+    <path d="M 460 970 L 980 970 L 980 730" stroke="#fb7185" stroke-width="2" stroke-dasharray="6,4" fill="none" marker-end="url(#arrow-rose)"/>
+    <text x="560" y="960" class="conn-text" fill="#fb7185">1:N [H6 ➔ H3] มัดจำเตียงล่วงหน้า</text>
+
+    <!-- 6. H4 Pharmacy -> H3 invoice_items (prescription_id) -->
+    <path d="M 460 690 L 1400 690 L 1400 490" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="550" y="680" class="conn-text" fill="#34d399">1:N [H4 ➔ H3] prescription_id (ดึงรายการค่ายา)</text>
+
+    <!-- 7. H5 Lab -> H3 invoice_items (lab_order_id) -->
+    <path d="M 460 830 L 1430 830 L 1430 540" stroke="#22d3ee" stroke-width="2.5" fill="none" marker-end="url(#arrow-cyan)"/>
+    <text x="550" y="820" class="conn-text" fill="#22d3ee">1:N [H5 ➔ H3] lab_order_id (ดึงรายการค่าตรวจแล็บ)</text>
+
+    <!-- Internal H3 Wires -->
+    <!-- invoices -> invoice_items -->
+    <path d="M 1240 430 L 1340 430" stroke="#f59e0b" stroke-width="3" fill="none" marker-end="url(#arrow-gold)"/>
+    <text x="1255" y="420" class="conn-text" fill="#f59e0b">1:N (Itemize)</text>
+
+    <!-- invoices -> payments -->
+    <path d="M 1060 580 L 1060 630 L 1640 630 L 1640 330 L 1740 330" stroke="#f59e0b" stroke-width="2.5" fill="none" marker-end="url(#arrow-gold)"/>
+    <text x="1450" y="620" class="conn-text" fill="#f59e0b">1:N (Settlement)</text>
+
+    <!-- payments -> receipts -->
+    <path d="M 1910 430 L 1910 500" stroke="#f59e0b" stroke-width="2.5" fill="none" marker-end="url(#arrow-gold)"/>
+    <text x="1920" y="470" class="conn-text" fill="#f59e0b">1:1</text>
+
+    <!-- deposits -> invoices -->
+    <path d="M 1060 640 L 1060 580" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,5" fill="none" marker-end="url(#arrow-gold)"/>
+    <text x="1070" y="615" class="conn-text" fill="#f59e0b">หักเงินมัดจำ</text>
+  </svg>
+
+  <!-- ==================== LEFT COLUMN: CONNECTED SYSTEMS (H1, H2, H4, H5, H6) ==================== -->
+
+  <!-- H1 PATIENTS -->
+  <div class="card theme-h1" style="top: 50px; left: 50px; width: 410px;">
+    <div class="card-header">
+      <span>🏥 H1: patients (ทะเบียนผู้ป่วย)</span>
+      <span class="sub-tag" style="background:#0284c7;">ระบบต้นทาง</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>patient_id</b> (VARCHAR)</div>
+      <div class="attr">title_prefix, first_name, last_name</div>
+      <div class="attr">national_id, birth_date, gender, phone</div>
+      <div style="color:#38bdf8; margin-top:4px; font-weight:600;">➔ H3 นำไปใช้ระบุตัวตนผู้ป่วยในใบแจ้งหนี้</div>
+    </div>
+  </div>
+
+  <!-- H1 INSURANCE -->
+  <div class="card theme-h1" style="top: 210px; left: 50px; width: 410px;">
+    <div class="card-header">
+      <span>🛡️ H1: patient_insurance_policies (สิทธิรักษา)</span>
+      <span class="sub-tag" style="background:#0284c7;">ประกันสุขภาพ</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>policy_id</b> (INT)</div>
+      <div><span class="fk">[FK]</span> patient_id ➔ patients</div>
+      <div class="attr">provider_name, policy_number, coverage_limit</div>
+      <div style="color:#38bdf8; margin-top:4px; font-weight:600;">➔ H3 นำไปคำนวณวงเงินประกันตัดจ่าย (Split Bill)</div>
+    </div>
+  </div>
+
+  <!-- H2 OPD -->
+  <div class="card theme-h2" style="top: 410px; left: 50px; width: 410px;">
+    <div class="card-header">
+      <span>🩺 H2: clinical_records / visits (ผู้ป่วยนอก OPD)</span>
+      <span class="sub-tag" style="background:#8b5cf6;">นัดหมาย/ตรวจ</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>visit_id</b> (INT)</div>
+      <div><span class="fk">[FK]</span> patient_id ➔ patients</div>
+      <div class="attr">doctor_id, visit_date, diagnosis_code</div>
+      <div class="attr">doctor_fee_thb, opd_service_charge</div>
+      <div style="color:#a78bfa; margin-top:4px; font-weight:600;">➔ H3 รวบรวมค่าแพทย์และค่าตรวจรักษา OPD</div>
+    </div>
+  </div>
+
+  <!-- H4 PHARMACY -->
+  <div class="card theme-h4" style="top: 620px; left: 50px; width: 410px;">
+    <div class="card-header">
+      <span>💊 H4: prescriptions (ใบสั่งยา & เภสัชกรรม)</span>
+      <span class="sub-tag" style="background:#10b981;">ค่ายา</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>prescription_id</b> (INT)</div>
+      <div><span class="fk">[FK]</span> patient_id, visit_id / admission_id</div>
+      <div class="attr">prescribed_date, dispense_status</div>
+      <div class="attr">total_medication_cost (คำนวณจาก prescription_items)</div>
+      <div style="color:#34d399; margin-top:4px; font-weight:600;">➔ H3 ดึงรายการยาและยอดรวมค่ายามาลงบิล</div>
+    </div>
+  </div>
+
+  <!-- H5 LAB -->
+  <div class="card theme-h5" style="top: 760px; left: 50px; width: 410px;">
+    <div class="card-header">
+      <span>🔬 H5: lab_orders (คำสั่งตรวจแล็บ)</span>
+      <span class="sub-tag" style="background:#06b6d4;">ค่าแล็บ</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>lab_order_id</b> (INT)</div>
+      <div><span class="fk">[FK]</span> patient_id, visit_id / admission_id</div>
+      <div class="attr">test_code, order_status, test_price_thb</div>
+      <div style="color:#22d3ee; margin-top:4px; font-weight:600;">➔ H3 ดึงค่าตรวจทางห้องปฏิบัติการมาลงบิล</div>
+    </div>
+  </div>
+
+  <!-- H6 IPD -->
+  <div class="card theme-h6" style="top: 890px; left: 50px; width: 410px;">
+    <div class="card-header">
+      <span>🛏️ H6: admissions (ผู้ป่วยใน IPD & วอร์ด)</span>
+      <span class="sub-tag" style="background:#f43f5e;">เตียง/ห้องพัก</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>admission_id</b> (INT)</div>
+      <div><span class="fk">[FK]</span> patient_id, bed_id, attending_doctor_id</div>
+      <div class="attr">admission_date, discharge_date, los_days</div>
+      <div class="attr">total_room_charges (ค่าห้อง/ค่าเตียง)</div>
+      <div style="color:#fb7185; margin-top:4px; font-weight:600;">➔ H3 สรุปค่าใช้จ่ายผู้ป่วยในทั้งหมด ณ วัน Discharge</div>
+    </div>
+  </div>
+
+
+  <!-- ==================== CENTER & RIGHT: CORE MODULE H3 ==================== -->
+
+  <!-- H3: INVOICES -->
+  <div class="card theme-h3" style="top: 290px; left: 880px; width: 360px; border-width: 3px; box-shadow: 0 0 25px rgba(245,158,11,0.25);">
+    <div class="card-header">
+      <span>📄 H3: invoices (ใบแจ้งหนี้หลัก)</span>
+      <span class="sub-tag" style="background:#f59e0b;">ข้อมูลหลัก 1</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>invoice_id</b> (SERIAL)</div>
+      <div><span class="fk">[FK]</span> <b>patient_id</b> (เชื่อม H1)</div>
+      <div><span class="fk">[FK]</span> <b>policy_id</b> (เชื่อม H1 ประกัน)</div>
+      <div><span class="fk">[FK]</span> <b>visit_id</b> (เชื่อม H2 OPD)</div>
+      <div><span class="fk">[FK]</span> <b>admission_id</b> (เชื่อม H6 IPD)</div>
+      <div class="attr">invoice_number (UNIQUE), issue_date</div>
+      <div class="attr">subtotal_amount, discount_amount</div>
+      <div style="color:#f59e0b; font-weight:700;">net_amount (ยอดเงินสุทธิ)</div>
+      <div style="color:#38bdf8; font-weight:600;">insurance_paid (ประกันจ่าย)</div>
+      <div style="color:#34d399; font-weight:600;">patient_paid (ผู้ป่วยจ่ายจริง)</div>
+      <div class="attr">status ('UNPAID', 'PAID', 'CANCELLED')</div>
+    </div>
+  </div>
+
+  <!-- H3: INVOICE_ITEMS -->
+  <div class="card theme-h3" style="top: 290px; left: 1340px; width: 340px;">
+    <div class="card-header">
+      <span>📋 H3: invoice_items (รายการค่าใช้จ่าย)</span>
+      <span class="sub-tag" style="background:#f59e0b;">ข้อมูลหลัก 2</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>item_id</b> (SERIAL)</div>
+      <div><span class="fk">[FK]</span> <b>invoice_id</b> (invoices)</div>
+      <div><span class="fk">[FK]</span> <b>prescription_id</b> (เชื่อม H4 ยา)</div>
+      <div><span class="fk">[FK]</span> <b>lab_order_id</b> (เชื่อม H5 แล็บ)</div>
+      <div><span class="fk">[FK]</span> service_id (billing_services)</div>
+      <div class="attr">item_name, category</div>
+      <div class="attr">unit_price, quantity, line_total</div>
+    </div>
+  </div>
+
+  <!-- H3: DEPOSITS -->
+  <div class="card theme-h3" style="top: 640px; left: 880px; width: 360px;">
+    <div class="card-header">
+      <span>💰 H3: deposits (เงินมัดจำล่วงหน้า)</span>
+      <span class="sub-tag" style="background:#d97706;">IPD Deposit</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>deposit_id</b> (SERIAL)</div>
+      <div><span class="fk">[FK]</span> <b>patient_id</b> (เชื่อม H1)</div>
+      <div><span class="fk">[FK]</span> <b>admission_id</b> (เชื่อม H6)</div>
+      <div><span class="fk">[FK]</span> invoice_id (invoices)</div>
+      <div class="attr">deposit_amount, deposit_status</div>
+      <div style="color:#fb7185; font-size:12px;">★ เงินมัดจำเตียง นำไปหักลบตอน Discharge</div>
+    </div>
+  </div>
+
+  <!-- H3: PAYMENTS -->
+  <div class="card theme-h3" style="top: 250px; left: 1740px; width: 340px;">
+    <div class="card-header">
+      <span>💳 H3: payments (การชำระเงิน)</span>
+      <span class="sub-tag" style="background:#f59e0b;">ข้อมูลหลัก 3</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>payment_id</b> (SERIAL)</div>
+      <div><span class="fk">[FK]</span> <b>invoice_id</b> (invoices)</div>
+      <div class="attr">payment_number (UNIQUE)</div>
+      <div class="attr">payment_method (CASH, PROMPTPAY, CARD)</div>
+      <div style="color:#f59e0b; font-weight:700;">amount_paid, paid_at</div>
+      <div class="attr">transaction_ref (เลขอ้างอิงสลิป)</div>
+      <div><span class="fk">[FK]</span> cashier_id (เชื่อม H7)</div>
+    </div>
+  </div>
+
+  <!-- H3: RECEIPTS -->
+  <div class="card theme-h3" style="top: 500px; left: 1740px; width: 340px;">
+    <div class="card-header">
+      <span>🧾 H3: receipts (ใบเสร็จรับเงิน)</span>
+      <span class="sub-tag" style="background:#d97706;">หลักฐานชำระ</span>
+    </div>
+    <div class="card-body">
+      <div><span class="pk">[PK]</span> <b>receipt_id</b> (SERIAL)</div>
+      <div><span class="fk">[FK]</span> payment_id, invoice_id</div>
+      <div class="attr">receipt_number, receipt_date</div>
+      <div class="attr">total_amount</div>
+      <div><span class="fk">[FK]</span> issued_by (เจ้าหน้าที่การเงิน)</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend-box">
+    <div><span class="pk">[PK]</span> Primary Key</div>
+    <div><span class="fk">[FK]</span> Foreign Key เชื่อมข้ามระบบ</div>
+    <div><b style="color:#f59e0b;">■ H3:</b> การเงิน (เจ้าของระบบ)</div>
+    <div><b style="color:#0284c7;">■ H1:</b> ผู้ป่วย/ประกัน</div>
+    <div><b style="color:#8b5cf6;">■ H2:</b> ผู้ป่วยนอก OPD</div>
+    <div><b style="color:#10b981;">■ H4:</b> ค่ายา</div>
+    <div><b style="color:#06b6d4;">■ H5:</b> ค่าแล็บ</div>
+    <div><b style="color:#f43f5e;">■ H6:</b> ผู้ป่วยใน IPD</div>
+  </div>
+
+</div>
+
+</body>
+</html>
