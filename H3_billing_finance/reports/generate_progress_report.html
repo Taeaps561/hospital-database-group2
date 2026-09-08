@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>รายงานส่งความก้าวหน้าโครงการ — u68001</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Fira+Code:wght@400;600&display=swap');
+    
+    @page {
+      size: A4 portrait;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 40px 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .header-banner {
+      border-bottom: 3px solid #1e40af;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    .badge-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 18px 0 24px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .badge-card .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .badge-card .label {
+      font-weight: 600;
+      color: #1e3a8a;
+      min-width: 130px;
+    }
+
+    .badge-card .val {
+      color: #0f172a;
+    }
+
+    .alert-box {
+      background: #fef2f2;
+      border-left: 4px solid #ef4444;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #991b1b;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 4px solid #2563eb;
+      padding-left: 10px;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px 0;
+      font-size: 12.5px;
+    }
+
+    th {
+      background: #1e293b;
+      color: #ffffff;
+      text-align: left;
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .tag-success {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .tag-fail {
+      display: inline-block;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .img-box {
+      text-align: center;
+      margin: 20px 0;
+      padding: 12px;
+      background: #0f172a;
+      border-radius: 8px;
+    }
+
+    .img-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .caption {
+      font-size: 11.5px;
+      color: #94a3b8;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      font-size: 11.5px;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 5px;
+      border-radius: 3px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    @media print {
+      body { background: white; }
+      .container {
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+        max-width: 100%;
+      }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header-banner">
+    <h1>รายงานส่งความก้าวหน้าโครงการ (Project Progress Report)</h1>
+    <div class="subtitle">วิชา ระบบจัดการฐานข้อมูล (Database Management System) — ภาคเรียนที่ 1/2569</div>
+  </div>
+
+  <!-- Meta Details Card -->
+  <div class="badge-card">
+    <div class="row">
+      <div class="label">งานที่ส่ง:</div>
+      <div class="val">งานที่ 3 ส่งความก้าวหน้า Project รายวิชา (งานกลุ่ม)</div>
+    </div>
+    <div class="row">
+      <div class="label">กลุ่มที่รับผิดชอบ:</div>
+      <div class="val">กลุ่มที่ 2 — Enterprise Hospital Database</div>
+    </div>
+    <div class="row">
+      <div class="label">ผู้ส่งความก้าวหน้า:</div>
+      <div class="val"><strong>นายนธิศ เลิศรัชต์</strong> (รหัส: <code>u68001</code>)</div>
+    </div>
+    <div class="row">
+      <div class="label">ระบบย่อยหลัก:</div>
+      <div class="val"><strong>H3: การเงินและบัญชี (Billing & Finance)</strong></div>
+    </div>
+    <div class="row" style="grid-column: span 2;">
+      <div class="label">เกณฑ์การให้คะแนน:</div>
+      <div class="val"><strong>มากี่คน ก็ให้คะแนนเฉพาะคนที่มาส่งความก้าวหน้า</strong></div>
+    </div>
+  </div>
+
+  <!-- Evaluation Table -->
+  <h2>1. ตารางรายชื่อและเกณฑ์การให้คะแนนเฉพาะคนที่มาส่งงาน</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 8%;">ลำดับ</th>
+        <th style="width: 15%;">รหัสนักศึกษา</th>
+        <th style="width: 25%;">ชื่อ-นามสกุล</th>
+        <th style="width: 27%;">ระบบย่อยที่รับผิดชอบ</th>
+        <th style="width: 25%;">สถานะการให้คะแนน</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><code>u68001</code></td>
+        <td><strong>นายนธิศ เลิศรัชต์</strong></td>
+        <td>H3: การเงิน (ผู้พัฒนา & รวม Schema)</td>
+        <td><span class="tag-success">✓ มาส่งงาน (ให้คะแนน)</span></td>
+      </tr>
+      <tr>
+        <td>-</td>
+        <td>-</td>
+        <td><em>(สมาชิกรายอื่นในกลุ่ม)</em></td>
+        <td>H1, H2, H4, H5, H6, H7</td>
+        <td><span class="tag-fail">✗ ไม่ได้มาส่ง (ไม่ได้รับคะแนน)</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert-box">
+    <strong>ข้อกำหนดตามเกณฑ์การประเมิน:</strong> รายงานฉบับนี้จัดทำขึ้นเพื่อยืนยันการปฏิบัติงานจริง โดยขอรับการประเมินและให้คะแนนเฉพาะ <strong>นายนธิศ เลิศรัชต์ (u68001)</strong> ซึ่งเป็นผู้ดำเนินงานสร้างระบบการเงิน H3 และบูรณาการโครงสร้างฐานข้อมูลรวมใน Schema <code>u68001</code>
+  </div>
+
+  <!-- ER Diagram Explanation -->
+  <h2>2. คำอธิบายแผนภาพ ER Diagram (รูปภาพ postgres 2 - postgres - u68001.png)</h2>
+  <p>
+    แผนภาพที่แนบมานี้เป็น <strong>ER Diagram เชิงปฏิบัติการจริง (Physical ER Diagram)</strong> ที่ถูกสกัดโครงสร้าง (Reverse Engineered) จากฐานข้อมูล <strong>PostgreSQL Server (10.129.57.22)</strong> ภายใต้ Schema <code>u68001</code> ผ่านเครื่องมือ <strong>DBeaver</strong> แสดงการเชื่อมโยงครบ 32 ตารางของ 6 โมดูลหลัก (H1 - H6) โดยมีโมดูล H3 เป็นศูนย์กลาง:
+  </p>
+
+  <div class="img-box">
+    <img src="postgres 2 - postgres - u68001.png" alt="ER Diagram PostgreSQL u68001">
+    <div class="caption">ภาพที่ 1: แผนภาพ ER Diagram จริงใน PostgreSQL Schema u68001 ที่ผ่านการผูก Foreign Key ข้ามระบบย่อย</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>3. โครงสร้างตารางและการจำแนกระบบย่อยในแผนภาพ</h2>
+  
+  <h3>3.1 โมดูลหลัก H3: การเงินและบัญชี (Billing & Finance) — รับผิดชอบโดย u68001</h3>
+  <ul>
+    <li><code>invoices</code>: ตารางใบแจ้งหนี้หลัก รวบรวมยอดเงินสุทธิ (Net Amount), ยอดภาษี, ส่วนลด และสถานะบิล ผูกกับ <code>patient_id</code> (H1) และ <code>visit_id</code> (H2/H6)</li>
+    <li><code>h3_invoices</code>: ใบแจ้งหนี้ส่วนขยาย จัดการแยกจ่ายประกันกับเงินสด (Split Billing ตาม Change Card H02)</li>
+    <li><code>invoice_items</code>: รายการค่ารักษาพยาบาลย่อย (ค่ายา, ค่าตรวจแล็บ, ค่าห้อง, ค่าแพทย์) พร้อมคำนวณจำนวนและราคารวม</li>
+    <li><code>billing_services</code>: ตารางแค็ตตาล็อกอัตราค่าบริการทางการแพทย์มาตรฐาน</li>
+    <li><code>price_history</code>: บันทึกประวัติการปรับราคาบริการเพื่อความโปร่งใสและตรวจสอบได้</li>
+    <li><code>payments</code>: บันทึกการชำระเงินจริง (เงินสด, โอนผ่านธนาคาร, บัตรเครดิต, พร้อมเพย์)</li>
+    <li><code>receipts</code> & <code>receipt_items</code>: การออกใบเสร็จรับเงินอย่างเป็นทางการ</li>
+    <li><code>refunds</code>: จัดการคืนเงินกรณีมีการยกเลิกบริการหรือคิดเงินผิดพลาด โดยมีผู้อนุมัติ</li>
+    <li><code>deposits</code>: เงินมัดจำล่วงหน้าสำหรับผู้ป่วยใน (IPD) เพื่อหักยอดบิลตอนจำหน่าย</li>
+    <li><code>discount_rules</code>: กำหนดเงื่อนไขและกฎเกณฑ์ส่วนลด</li>
+    <li><code>insurance_claims</code>: ยื่นเบิกประกันสุขภาพ และติดตามสถานะการอนุมัติ</li>
+    <li><code>bank_reconciliation</code>: การกระทบยอดรายการโอนกับสเตตเมนต์ธนาคาร</li>
+    <li><code>audit_log</code>: บันทึกความปลอดภัยและการเปลี่ยนแปลงข้อมูลสำคัญ (Audit Trail)</li>
+  </ul>
+
+  <h3>3.2 โมดูลระบบย่อยร่วม (Integrated External Modules)</h3>
+  <ul>
+    <li><strong>H1 ทะเบียนผู้ป่วย:</strong> <code>patients</code>, <code>patient_contacts</code>, <code>provinces</code>, <code>hospital_branches</code>, <code>insurance_providers</code>, <code>patient_insurance_policies</code></li>
+    <li><strong>H2 นัดหมาย & OPD:</strong> <code>appointments</code>, <code>clinical_records</code>, <code>diagnoses</code> (รหัสโรค ICD-10)</li>
+    <li><strong>H4 เภสัชกรรม:</strong> <code>medications</code>, <code>prescriptions</code>, <code>prescription_items</code></li>
+    <li><strong>H5 ห้องแล็บ:</strong> <code>lab_orders</code>, <code>lab_results</code></li>
+    <li><strong>H6 ผู้ป่วยใน:</strong> <code>wards</code>, <code>beds</code>, <code>admissions</code></li>
+  </ul>
+
+  <h2>4. สรุปจุดเชื่อมโยง Foreign Key ข้ามระบบ (Cross-Module Integration)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ระบบต้นทาง</th>
+        <th>ตารางที่เชื่อม</th>
+        <th>Foreign Key</th>
+        <th>หน้าที่ทางธุรกิจในการเชื่อมโยง</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>H1 ทะเบียนผู้ป่วย</strong></td>
+        <td><code>patients</code> &rarr; <code>invoices</code></td>
+        <td><code>patient_id</code></td>
+        <td>ระบุผู้ป่วยผู้รับผิดชอบค่าใช้จ่าย และดึงข้อมูลสิทธิการรักษา</td>
+      </tr>
+      <tr>
+        <td><strong>H1 ประกันสุขภาพ</strong></td>
+        <td><code>patient_insurance_policies</code> &rarr; <code>h3_invoices</code></td>
+        <td><code>policy_id</code></td>
+        <td>ตัดยอดวงเงินประกันสุขภาพ และคำนวณส่วนต่างที่ต้องจ่ายเพิ่ม</td>
+      </tr>
+      <tr>
+        <td><strong>H2 OPD</strong></td>
+        <td><code>clinical_records</code> &rarr; <code>invoices</code></td>
+        <td><code>visit_id</code></td>
+        <td>รวบรวมค่าตรวจและค่าแพทย์ผู้ตรวจรักษา</td>
+      </tr>
+      <tr>
+        <td><strong>H4 เภสัชกรรม</strong></td>
+        <td><code>prescriptions</code> &rarr; <code>invoice_items</code></td>
+        <td><code>prescription_id</code></td>
+        <td>ดึงรายการยาและราคาที่สั่งจ่ายจริงเข้าสู่ใบแจ้งหนี้</td>
+      </tr>
+      <tr>
+        <td><strong>H5 ห้องแล็บ</strong></td>
+        <td><code>lab_orders</code> &rarr; <code>invoice_items</code></td>
+        <td><code>order_id</code></td>
+        <td>ดึงค่าบริการการส่งตรวจวิเคราะห์ทางห้องปฏิบัติการ</td>
+      </tr>
+      <tr>
+        <td><strong>H6 ผู้ป่วยใน</strong></td>
+        <td><code>admissions</code> &rarr; <code>invoices</code> / <code>deposits</code></td>
+        <td><code>admission_id</code></td>
+        <td>คิดค่าห้องพัก/ค่าเตียง และดึงยอดเงินมัดจำล่วงหน้ามาหักลบ</td>
+      </tr>
+      <tr>
+        <td><strong>H3 การเงินภายใน</strong></td>
+        <td><code>invoices</code> &rarr; <code>payments</code> &rarr; <code>receipts</code></td>
+        <td><code>invoice_id</code>, <code>payment_id</code></td>
+        <td>กระบวนการรับชำระเงินและออกใบเสร็จรับเงินที่สมบูรณ์</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>5. สรุปผลความก้าวหน้าและการดำเนินงาน</h2>
+  <ul>
+    <li>ดำเนินการสร้างและแก้ไขสคริปต์ <code>full_integration.sql</code> และ <code>connect_all_fk.sql</code> จนฐานข้อมูลทำงานได้จริง 100%</li>
+    <li>สร้าง Referential Integrity และ Foreign Key ข้ามระบบครบถ้วนทุกจุดตามแผนภาพ ER Diagram ใน DBeaver</li>
+    <li>ระบบมีความพร้อมสมบูรณ์สำหรับการทดสอบและการให้คะแนนความก้าวหน้ารายบุคคลแก่ <strong>นายนธิศ เลิศรัชต์ (u68001)</strong></li>
+  </ul>
+
+</div>
+
+</body>
+</html>
