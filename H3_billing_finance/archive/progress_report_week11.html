@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Progress Report Week 11 — u68001</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Fira+Code&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #f5f7fa;
+      color: #2d3748;
+      padding: 40px;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 50px 60px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #1a365d;
+      border-bottom: 3px solid #3182ce;
+      padding-bottom: 10px;
+      margin-bottom: 6px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2b6cb0;
+      margin-top: 30px;
+      margin-bottom: 4px;
+    }
+    h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #2c5282;
+      margin-top: 22px;
+      margin-bottom: 6px;
+      border-left: 4px solid #63b3ed;
+      padding-left: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    th {
+      background: #2b6cb0;
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tr:nth-child(even) td { background: #ebf8ff; }
+    tr:hover td { background: #bee3f8; }
+    blockquote {
+      border-left: 4px solid #f6ad55;
+      background: #fffaf0;
+      padding: 10px 16px;
+      margin: 12px 0;
+      border-radius: 4px;
+      color: #744210;
+      font-size: 14px;
+    }
+    pre, code {
+      font-family: 'Fira Code', monospace;
+      background: #1a202c;
+      color: #a0f0a0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: pre;
+      margin: 14px 0;
+    }
+    p code {
+      background: #edf2f7;
+      color: #c53030;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    ul, ol {
+      padding-left: 24px;
+      margin: 8px 0;
+    }
+    li { margin: 4px 0; }
+    hr {
+      border: none;
+      border-top: 2px solid #e2e8f0;
+      margin: 28px 0;
+    }
+    p { margin: 10px 0; }
+    .footer {
+      margin-top: 40px;
+      font-size: 13px;
+      color: #718096;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+    }
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>รายงานความก้าวหน้า (Progress Report) — Week 11</h1>
+<h2>โครงการ: ระบบฐานข้อมูลโรงพยาบาล (Hospital Information System)</h2>
+<h3>Schema: <code>u68001</code> | Server: PostgreSQL @ 10.129.57.22</h3>
+<hr />
+<h2>👥 สมาชิกกลุ่มที่มาส่งความก้าวหน้า</h2>
+<table>
+<thead>
+<tr>
+<th>ลำดับ</th>
+<th>รหัสนักศึกษา</th>
+<th>ชื่อ-นามสกุล</th>
+<th>ระบบที่รับผิดชอบ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>u68001</td>
+<td><em>(ชื่อสมาชิก)</em></td>
+<td>H3 Billing &amp; Finance (ผู้รวมระบบ)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>หมายเหตุ:</strong> ให้คะแนนเฉพาะคนที่มาส่งความก้าวหน้าเท่านั้น</p>
+</blockquote>
+<hr />
+<h2>📌 สรุปงานที่ทำในสัปดาห์นี้</h2>
+<ul>
+<li>บูรณาการระบบย่อย H1-H6 เข้าสู่ Schema เดียว (u68001)</li>
+<li>สร้าง Foreign Key Constraints เชื่อมโยงระหว่างทุกระบบ</li>
+<li>ทดสอบ ER Diagram ผ่าน DBeaver</li>
+<li>สร้างไฟล์ full_integration.sql และ connect_all_fk.sql</li>
+</ul>
+<hr />
+<h2>🗂️ ER Diagram — u68001 Schema</h2>
+<p>ดูภาพ: postgres 2 - postgres - u68001.png</p>
+<hr />
+<h2>🏗️ โครงสร้างระบบ (System Architecture)</h2>
+<h3>H1 — ระบบทะเบียนผู้ป่วย (Patient Registration)</h3>
+<table>
+<thead>
+<tr>
+<th>ตาราง</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>patients</td>
+<td>ข้อมูลผู้ป่วยหลัก (ชื่อ, เพศ, วันเกิด, กรุ๊ปเลือด)</td>
+</tr>
+<tr>
+<td>patient_contacts</td>
+<td>ช่องทางติดต่อผู้ป่วย</td>
+</tr>
+<tr>
+<td>provinces</td>
+<td>ข้อมูลจังหวัด</td>
+</tr>
+<tr>
+<td>hospital_branches</td>
+<td>สาขาโรงพยาบาล</td>
+</tr>
+<tr>
+<td>insurance_providers</td>
+<td>บริษัทประกันสุขภาพ</td>
+</tr>
+<tr>
+<td>patient_insurance_policies</td>
+<td>กรมธรรม์ประกันสุขภาพ</td>
+</tr>
+</tbody>
+</table>
+<h3>H2 — ระบบนัดหมายและ OPD</h3>
+<table>
+<thead>
+<tr>
+<th>ตาราง</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>appointments</td>
+<td>การนัดหมายผู้ป่วย</td>
+</tr>
+<tr>
+<td>clinical_records</td>
+<td>บันทึกการตรวจรักษา</td>
+</tr>
+<tr>
+<td>diagnoses</td>
+<td>รหัสโรค ICD-10</td>
+</tr>
+</tbody>
+</table>
+<h3>H3 — ระบบการเงินและการเรียกเก็บเงิน (Billing &amp; Finance)</h3>
+<table>
+<thead>
+<tr>
+<th>ตาราง</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>h3_invoices</td>
+<td>ใบแจ้งหนี้ระบบ H3</td>
+</tr>
+<tr>
+<td>invoices</td>
+<td>ใบแจ้งหนี้หลัก</td>
+</tr>
+<tr>
+<td>invoice_items</td>
+<td>รายการในใบแจ้งหนี้</td>
+</tr>
+<tr>
+<td>billing_services</td>
+<td>บริการที่คิดเงินได้</td>
+</tr>
+<tr>
+<td>price_history</td>
+<td>ประวัติการเปลี่ยนแปลงราคา</td>
+</tr>
+<tr>
+<td>payments</td>
+<td>การชำระเงิน</td>
+</tr>
+<tr>
+<td>receipts</td>
+<td>ใบเสร็จรับเงิน</td>
+</tr>
+<tr>
+<td>receipt_items</td>
+<td>รายการในใบเสร็จ</td>
+</tr>
+<tr>
+<td>refunds</td>
+<td>การคืนเงิน</td>
+</tr>
+<tr>
+<td>deposits</td>
+<td>เงินมัดจำ</td>
+</tr>
+<tr>
+<td>discount_rules</td>
+<td>กฎส่วนลด</td>
+</tr>
+<tr>
+<td>insurance_claims</td>
+<td>การเบิกประกัน</td>
+</tr>
+<tr>
+<td>bank_reconciliation</td>
+<td>การกระทบยอดธนาคาร</td>
+</tr>
+<tr>
+<td>audit_log</td>
+<td>บันทึก Audit Trail</td>
+</tr>
+</tbody>
+</table>
+<h3>H4 — ระบบเภสัชกรรม (Pharmacy)</h3>
+<table>
+<thead>
+<tr>
+<th>ตาราง</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>medications</td>
+<td>ข้อมูลยา</td>
+</tr>
+<tr>
+<td>prescriptions</td>
+<td>ใบสั่งยา</td>
+</tr>
+<tr>
+<td>prescription_items</td>
+<td>รายการยา</td>
+</tr>
+</tbody>
+</table>
+<h3>H5 — ระบบห้องปฏิบัติการ (Laboratory)</h3>
+<table>
+<thead>
+<tr>
+<th>ตาราง</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>lab_orders</td>
+<td>คำสั่งตรวจ Lab</td>
+</tr>
+<tr>
+<td>lab_results</td>
+<td>ผลการตรวจ</td>
+</tr>
+</tbody>
+</table>
+<h3>H6 — ระบบผู้ป่วยใน (Inpatient &amp; Ward)</h3>
+<table>
+<thead>
+<tr>
+<th>ตาราง</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>wards</td>
+<td>หอผู้ป่วย</td>
+</tr>
+<tr>
+<td>beds</td>
+<td>เตียงผู้ป่วย</td>
+</tr>
+<tr>
+<td>admissions</td>
+<td>การรับผู้ป่วยใน</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>🔗 Foreign Key Relationships ระหว่างระบบ</h2>
+<pre><code>patients (H1)
+    |-- appointments (H2)
+    |-- clinical_records (H2)
+    |-- patient_contacts (H1)
+    |-- patient_insurance_policies (H1)
+    |-- invoices (H3)
+    |-- h3_invoices (H3)
+    |-- prescriptions (H4)
+    |-- lab_orders (H5)
+    |-- admissions (H6)
+    +-- deposits (H3)
+
+invoices (H3)
+    |-- invoice_items (H3)
+    |-- payments (H3)
+    |-- receipts (H3)
+    |-- refunds (H3)
+    |-- insurance_claims (H3)
+    +-- discount_rules (H3)
+
+wards (H6) --&gt; beds (H6) --&gt; admissions (H6)
+hospital_branches (H1) --&gt; provinces (H1)
+</code></pre>
+<hr />
+<h2>📁 ไฟล์ที่เกี่ยวข้อง</h2>
+<table>
+<thead>
+<tr>
+<th>ไฟล์</th>
+<th>คำอธิบาย</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>full_integration.sql</td>
+<td>DDL สร้างตาราง H1-H6 ทั้งหมดใน Schema u68001</td>
+</tr>
+<tr>
+<td>connect_all_fk.sql</td>
+<td>Foreign Key Constraints เชื่อมโยงทุกระบบ</td>
+</tr>
+<tr>
+<td>u68001_week11.sql</td>
+<td>งานรายบุคคล Week 11 (H3 Billing)</td>
+</tr>
+<tr>
+<td>postgres 2 - postgres - u68001.png</td>
+<td>ER Diagram จาก DBeaver</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>✅ สิ่งที่ทำสำเร็จ</h2>
+<ol>
+<li>สร้างตารางครบทุกระบบ — H1 ถึง H6 รวม 32 ตาราง ใน Schema u68001</li>
+<li>Foreign Key Constraints เชื่อมโยงระหว่างระบบ เช่น patients -&gt; invoices -&gt; payments</li>
+<li>ER Diagram แสดง Entity Relationships ครบถ้วนผ่าน DBeaver</li>
+<li>แก้ปัญหา Permission Denied โดยใช้ Schema u68001</li>
+</ol>
+<hr />
+<p><em>รายงานจัดทำโดย: u68001 | วันที่: 8 กันยายน 2569 | Schema: u68001 @ PostgreSQL</em></p>
+    <div class="footer">
+      Generated from progress_report_week11.md &nbsp;|&nbsp; Hospital Database Group 2 &nbsp;|&nbsp; u68001
+    </div>
+  </div>
+</body>
+</html>
